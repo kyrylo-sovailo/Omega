@@ -1,0 +1,3 @@
+config:
+  speed_left: 0.5
+  speed_right: 0.5

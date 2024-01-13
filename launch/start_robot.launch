@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- This file should be copied to the robot and launched on start-up -->
+<!-- Do not launch manually! -->
+
+<launch>
+  <arg name="robot_name" default="omega" />
+  <arg name="ground_truth" default="False" />
+
+  <group ns="$(arg robot_name)">
+    <!-- load parameter file -->
+    <rosparam file="$(find omega)/config/config.yaml" command="load" />
+
+    <!-- start omega node -->
+    <node name="omega" pkg="omega" type="omega" output="screen" respawn="true">
+      <remap from="odom" to="odom_trash" if="$(arg ground_truth)"/>
+    </node>
+
+  </group>
+</launch>

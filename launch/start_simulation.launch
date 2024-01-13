@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- This file starts robot simulation and invokes robot noes -->
+<!-- Launch manually! -->
+
+<launch>
+
+  <!-- start gazebo simulation -->
+  <include file="$(find tuda_turtlebot3_gazebo)/launch/turtlebot3.launch">
+    <arg name="robot_name" value="omega" />
+    <arg name="with_arm" value="False" />
+    <arg name="start_onboard" value="False" />
+    <arg name="ground_truth" default="False" />
+    <arg name="paused" value="False" />
+    <arg name="gazebo_gui" value="True" />
+  </include>
+
+  <!-- start robot -->
+  <include file="$(find omega)/launch/start_robot.launch"/>
+</launch>
