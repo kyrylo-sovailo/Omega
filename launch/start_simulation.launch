@@ -20,8 +20,18 @@
     <arg name="with_arm" value="True" />
     <arg name="paused" value="False" />
     <arg name="gazebo_gui" value="True" />
+
     <arg name="world_name" value="$(arg world_name)" />
+    <arg name="x_pos" value="0.0"/>
+    <arg name="y_pos" value="-1.0"/>
+    <arg name="z_pos" value="0.02"/>
+    <arg name="roll"  value="0.0"/>
+    <arg name="pitch" value="0.0"/>
+    <arg name="yaw"   value="-1.570796327"/>
   </include>
+
+  <!-- spawn balls -->
+  <node name="spawn_ball_1" pkg="gazebo_ros" type="spawn_model" args="-database tennis_ball -sdf -model tennis_ball_1 -x 0.0 -y -0.5 -z 0.1" respawn="false" output="screen" />
 
   <!-- start debug visualization -->
   <node if="False" name="image_view_node" pkg="image_view" type="image_view" output="screen">
