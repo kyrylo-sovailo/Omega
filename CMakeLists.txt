@@ -15,7 +15,7 @@ catkin_package(
 ## Build ##
 ###########
 
-add_executable(omega src/omega.cpp)
+add_executable(omega src/omega.cpp src/config.cpp)
 target_include_directories(omega PUBLIC include ${catkin_INCLUDE_DIRS})
 target_link_libraries(omega PUBLIC ${catkin_LIBRARIES})
 add_dependencies(omega ${catkin_EXPORTED_TARGETS})
