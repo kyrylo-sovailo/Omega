@@ -1,48 +1,40 @@
 #include <omega/omega.h>
 
-omega::Omega::Omega(ros::NodeHandle &handle)
+omega::Omega::Omega(ros::NodeHandle &node)
 {
-    //Read parameters
-    double speed_left = handle.param("config/speed_left", 0.0);
-    double speed_right = handle.param("config/speed_right", 0.0);
+    // Subscribers
+    _joint_state_sub = node.subscribe("joints/joint_states", 1, &Omega::_joint_state_callback, this);
+    _imu_sub = node.subscribe("sensor/imu_filtered", 1, &Omega::_imu_callback, this);
 
-    //Initialize subscribers
-    _joint_state_sub = handle.subscribe("joints/joint_states", 1, &Omega::_joint_state_callback, this);
-    _imu_sub = handle.subscribe("sensor/imu_filtered", 1, &Omega::_imu_callback, this);
-    
-    //Initialize publishers
-    _wheel_l_vel_cmd_pub = handle.advertise<std_msgs::Float64>("joints/wheel_left_controller/command", 1, true);
-    _wheel_r_vel_cmd_pub = handle.advertise<std_msgs::Float64>("joints/wheel_right_controller/command", 1, true);
-    
-    //Intialize timers
-    _timer = handle.createTimer(ros::Duration(0, 100 * 1000000), &Omega::_timer_callback, this);
+    // Publishers
+    _left_wheel_pub = node.advertise<std_msgs::Float64>("joints/wheel_left_controller/command", 1, true);
+    _right_wheel_pub = node.advertise<std_msgs::Float64>("joints/wheel_right_controller/command", 1, true);
 
-    //Write speed
+    // Timers
+    _timer = node.createTimer(ros::Duration(0.1), &Omega::update, this);
+}
+
+void omega::Omega::update(const ros::TimerEvent &event)
+{
     std_msgs::Float64 msg;
-    msg.data = speed_left;  _wheel_l_vel_cmd_pub.publish(msg);
-    msg.data = speed_right; _wheel_r_vel_cmd_pub.publish(msg);
+    msg.data = 0.5;
+    _left_wheel_pub.publish(msg);
+    _right_wheel_pub.publish(msg);
 }
 
 void omega::Omega::_joint_state_callback(const sensor_msgs::JointState::ConstPtr msg)
 {
-    ROS_INFO("_joint_state_callback");
 }
 
 void omega::Omega::_imu_callback(const sensor_msgs::Imu::ConstPtr msg)
 {
-    ROS_INFO("_imu_callback");
-}
-
-void omega::Omega::_timer_callback(const ros::TimerEvent &msg)
-{
-    ROS_INFO("_timer_callback");
 }
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "omega");
-    ros::NodeHandle handle;
-    omega::Omega omega(handle);
+    ros::NodeHandle node;
+    omega::Omega omega(node);
     ros::spin();
     return 0;
 }

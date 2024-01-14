@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- This file should be copied to the robot and launched on start-up -->
+<!-- This file can be launched by robot autolaunch or by start_simulation.launch -->
 <!-- Do not launch manually! -->
 
 <launch>
@@ -7,13 +7,10 @@
   <arg name="ground_truth" default="False" />
 
   <group ns="$(arg robot_name)">
-    <!-- load parameter file -->
+    <!-- load config into parameter server -->
     <rosparam file="$(find omega)/config/config.yaml" command="load" />
 
-    <!-- start omega node -->
-    <node name="omega" pkg="omega" type="omega" output="screen" respawn="true">
-      <remap from="odom" to="odom_trash" if="$(arg ground_truth)"/>
-    </node>
-
+    <!-- start diff_drive -->
+    <node name="omega" pkg="omega" type="omega" output="screen" respawn="true" />
   </group>
 </launch>

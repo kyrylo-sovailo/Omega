@@ -1,3 +1,11 @@
 config:
-  speed_left: 0.5
-  speed_right: 0.5
+  # Physical parameters
+  wheel_radius: 0.033     # [m]
+  wheel_separation: 0.160 # [m]
+
+  # Limits
+  max_wheel_vel: 5.0      # [rad/s]
+  max_linear_vel: 0.1     # [m/s]
+  max_linear_acc: 2.5     # [m/s²]
+  max_angular_vel: 0.7    # [rad/s]
+  max_angular_acc: 6.0    # [rad/s²]

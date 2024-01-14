@@ -1,19 +1,24 @@
 <?xml version="1.0"?>
-<!-- This file starts robot simulation and invokes robot noes -->
+<!-- This file starts simulation and invokes start_robot.launch -->
 <!-- Launch manually! -->
 
 <launch>
+  <arg name="robot_name" default="omega" />
+  <arg name="ground_truth" default="False" />
+  
+  <!-- start logics -->
+  <include file="$(find omega)/launch/start_robot.launch">
+    <arg name="robot_name" default="$(arg robot_name)" />
+    <arg name="ground_truth" default="$(arg ground_truth)" />
+  </include>
 
-  <!-- start gazebo simulation -->
+  <!-- start simulation -->
   <include file="$(find tuda_turtlebot3_gazebo)/launch/turtlebot3.launch">
-    <arg name="robot_name" value="omega" />
+    <arg name="robot_name" value="$(arg robot_name)" />
+    <arg name="ground_truth" default="$(arg ground_truth)" />
     <arg name="with_arm" value="False" />
     <arg name="start_onboard" value="False" />
-    <arg name="ground_truth" default="False" />
     <arg name="paused" value="False" />
     <arg name="gazebo_gui" value="True" />
   </include>
-
-  <!-- start robot -->
-  <include file="$(find omega)/launch/start_robot.launch"/>
 </launch>
