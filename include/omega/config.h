@@ -6,6 +6,8 @@ namespace omega
     class Config
     {
     public:
+        bool debug;
+        
         double wheel_radius;
         double wheel_separation;
 

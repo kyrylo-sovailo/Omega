@@ -7,6 +7,7 @@
 
 omega::Config::Config(ros::NodeHandle &node)
 {
+    OMEGA_CONFIG(debug);
     OMEGA_CONFIG(wheel_radius);
     OMEGA_CONFIG(wheel_separation);
     OMEGA_CONFIG(max_wheel_vel);

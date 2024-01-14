@@ -11,6 +11,6 @@
     <rosparam file="$(find omega)/config/config.yaml" command="load" />
 
     <!-- start diff_drive -->
-    <node name="omega" pkg="omega" type="omega" output="screen" respawn="true" />
+    <node name="omega_node" pkg="omega" type="omega" output="screen" respawn="true" />
   </group>
 </launch>

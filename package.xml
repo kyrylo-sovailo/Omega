@@ -25,4 +25,5 @@
 
   <!-- Runtime dependencies -->
   <exec_depend>tuda_turtlebot3_gazebo</exec_depend>
+  <exec_depend>image_view</exec_depend>
 </package>

@@ -5,6 +5,7 @@
 <launch>
   <arg name="robot_name" default="omega" />
   <arg name="ground_truth" default="False" />
+  <arg name="world_name" default="$(find tuda_turtlebot3_gazebo)/worlds/empty.world" />
   
   <!-- start logics -->
   <include file="$(find omega)/launch/start_robot.launch">
@@ -15,10 +16,15 @@
   <!-- start simulation -->
   <include file="$(find tuda_turtlebot3_gazebo)/launch/turtlebot3.launch">
     <arg name="robot_name" value="$(arg robot_name)" />
-    <arg name="ground_truth" default="$(arg ground_truth)" />
+    <arg name="ground_truth" value="$(arg ground_truth)" />
     <arg name="with_arm" value="True" />
-    <arg name="start_onboard" value="False" />
     <arg name="paused" value="False" />
     <arg name="gazebo_gui" value="True" />
+    <arg name="world_name" value="$(arg world_name)" />
   </include>
+
+  <!-- start debug visualization -->
+  <node if="False" name="image_view_node" pkg="image_view" type="image_view" output="screen">
+    <param name="image" type="string" value="/$(arg robot_name)/debug/image" />
+  </node>
 </launch>

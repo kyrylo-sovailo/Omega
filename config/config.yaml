@@ -1,4 +1,7 @@
 config:
+  # Behavior
+  debug: True
+
   # Physical parameters
   wheel_radius: 0.033     # [m]
   wheel_separation: 0.160 # [m]

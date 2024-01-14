@@ -28,8 +28,11 @@ namespace omega
         ros::Timer _timer;
         
         // Publishers
+        image_transport::Publisher _debug_image_pub;
         ros::Publisher _right_wheel_pub;
         ros::Publisher _left_wheel_pub;
+        ros::Publisher _arm_pub[4];
+        ros::Publisher _gripper_pub;
         
     public:
         Omega(ros::NodeHandle &node);    
