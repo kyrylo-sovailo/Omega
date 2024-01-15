@@ -7,6 +7,8 @@
 #include <sensor_msgs/JointState.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/Image.h>
+#include <trajectory_msgs/JointTrajectory.h>
 #include <image_transport/image_transport.h>
 
 namespace omega
@@ -31,7 +33,7 @@ namespace omega
         image_transport::Publisher _debug_image_pub;
         ros::Publisher _right_wheel_pub;
         ros::Publisher _left_wheel_pub;
-        ros::Publisher _arm_pub[4];
+        ros::Publisher _arm_pub;
         ros::Publisher _gripper_pub;
         
     public:

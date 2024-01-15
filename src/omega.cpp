@@ -49,6 +49,15 @@ void omega::Omega::_timer_callback(const ros::TimerEvent &event)
     _left_wheel_pub.publish(msg);
     msg.data = -0.5;
     _right_wheel_pub.publish(msg);
+
+    // Arm command
+    trajectory_msgs::JointTrajectory command;
+    command.joint_names = std::vector<std::string>{"arm_joint_1", "arm_joint_2", "arm_joint_3", "arm_joint_4"};
+    trajectory_msgs::JointTrajectoryPoint point;
+    point.positions = std::vector<double>{ 0.5, 0.5, 0.5, 0.5 };
+    point.time_from_start = ros::Duration(0.5);
+    command.points.push_back(point);
+    _arm_pub.publish(command);
 }
 
 omega::Omega::Omega(ros::NodeHandle &node) : _config(node)
@@ -58,14 +67,15 @@ omega::Omega::Omega(ros::NodeHandle &node) : _config(node)
     _image_sub = image_transfer.subscribe("camera/rgb/image_raw", 1, &Omega::_image_callback, this);
     _joint_state_sub = node.subscribe("joints/joint_states", 1, &Omega::_joint_state_callback, this);
     _imu_sub = node.subscribe("sensor/imu_raw", 1, &Omega::_imu_callback, this);
-    _timer = node.createTimer(ros::Duration(0.1), &Omega::_timer_callback, this);
+    _timer = node.createTimer(ros::Duration(1.0), &Omega::_timer_callback, this);
 
     // Publishers
     if (_config.debug) _debug_image_pub = image_transfer.advertise("debug/image", 1);
     _left_wheel_pub = node.advertise<std_msgs::Float64>("joints/wheel_left_controller/command", 1, true);
     _right_wheel_pub = node.advertise<std_msgs::Float64>("joints/wheel_right_controller/command", 1, true);
-    for (unsigned int i = 0; i < 4; i++) _arm_pub[i] = node.advertise<std_msgs::Float64>("joints/arm_joint_" + std::to_string(i + 1) + "_position/command", 1, true);
+    _arm_pub = node.advertise<trajectory_msgs::JointTrajectory>("joints/arm_trajectory_controller/command", 1, true);
     _gripper_pub = node.advertise<std_msgs::Float64>("joints/gripper_servo_joint_position/command", 1, true);
+
 }
 
 int main(int argc, char **argv)
