@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.13)
 project(omega)
 
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs sensor_msgs trajectory_msgs image_transport cv_bridge)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs sensor_msgs trajectory_msgs turtlebot3_msgs image_transport cv_bridge)
 
 ###################################
 ## catkin specific configuration ##
 ###################################
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp std_msgs sensor_msgs trajectory_msgs image_transport cv_bridge
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs trajectory_msgs turtlebot3_msgs image_transport cv_bridge
 )
 
 ###########

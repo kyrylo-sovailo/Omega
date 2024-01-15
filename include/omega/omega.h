@@ -9,6 +9,7 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/Image.h>
 #include <trajectory_msgs/JointTrajectory.h>
+#include <turtlebot3_msgs/GraspState.h>
 #include <image_transport/image_transport.h>
 
 namespace omega
