@@ -1,14 +1,58 @@
 config:
-  # Behavior
   debug: True
+  initialization_time: 3.0
 
-  # Physical parameters
-  wheel_radius: 0.033     # [m]
-  wheel_separation: 0.160 # [m]
+arm:
+  base_position: [ 0, 0, 0 ] # [m, m, m]
+  idle_position: [ 0.1, 0.1, 0.1 ] # [m, m, m]
+  idle_pitch: 0 # [rad]
+  l1: 0.0765    # [m]
+  l2: 0.1499    # [m]
+  l3: 0.15      # [m]
+  l4: 0.14      # [m]
+  q1_0: 0       # [rad]
+  q2_0: 1.41    # [rad]
+  q3_0: 0.1608  # [rad]
+  q4_0: 0       # [rad]
 
-  # Limits
-  max_wheel_vel: 5.0      # [rad/s]
-  max_linear_vel: 0.1     # [m/s]
-  max_linear_acc: 2.5     # [m/s²]
-  max_angular_vel: 0.7    # [rad/s]
-  max_angular_acc: 6.0    # [rad/s²]
+gripper:
+  duration: 1.0 # [s]
+
+timer:
+  frequency: 10 # [Hz]
+
+wheels:
+  radius: 0.033         # [m]
+  separation: 0.160     # [m]
+  max_wheel_vel: 5.0    # [rad/s]
+  max_linear_vel: 0.1   # [m/s]
+  max_linear_acc: 2.5   # [m/s2]
+  max_angular_vel: 0.7  # [rad/s]
+  max_angular_acc: 6.0  # [rad/s2]
+
+camera:
+  blur_strength: 3    # [1]
+  blur_size: 5        # [pix]
+
+ball_tracker:
+  radius: 0.05        # [m]
+  roll_distance: 5    # [m]
+  timeout: 10         # [s]
+
+  dilate_size: 5      # [pix]
+  min_hue: 6          # [color]
+  max_hue: 50         # [color]
+  min_saturation: 80  # [color]
+  max_saturation: 255 # [color]
+  min_value: 110      # [color]
+  max_value: 255      # [color]
+
+robot_tracker:
+  camera_position: [ 0, 0, 0 ]  # [m, m, m]
+  wall_height: 0.1              # [m]
+  initial_x: 0                  # [m]
+  initial_y: 0                  # [m]
+  initial_theta: 0              # [rad]
+  drive_distance_variance: 0.1  # [m/m]
+  drive_angle_variance: 0.05    # [1/m]
+  measure_variance: 0.1         # [m/m]

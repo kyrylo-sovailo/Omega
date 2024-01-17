@@ -15,7 +15,18 @@ catkin_package(
 ## Build ##
 ###########
 
-add_executable(omega src/omega.cpp src/config.cpp)
+add_executable(omega
+  src/arm.cpp
+  src/ball_tracker.cpp
+  src/camera.cpp
+  src/config.cpp
+  src/gripper.cpp
+  src/omega.cpp
+  src/publisher.cpp
+  src/robot_tracker.cpp
+  src/timer.cpp
+  src/wheels.cpp
+)
 target_include_directories(omega PUBLIC include ${catkin_INCLUDE_DIRS})
 target_link_libraries(omega PUBLIC ${catkin_LIBRARIES})
 add_dependencies(omega ${catkin_EXPORTED_TARGETS})

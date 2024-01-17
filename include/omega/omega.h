@@ -1,43 +1,47 @@
 #pragma once
-
-#include <omega/config.h>
-
 #include <ros/ros.h>
-#include <std_msgs/Float64.h>
 #include <sensor_msgs/JointState.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Image.h>
-#include <sensor_msgs/Image.h>
-#include <trajectory_msgs/JointTrajectory.h>
 #include <turtlebot3_msgs/GraspState.h>
-#include <image_transport/image_transport.h>
 
 namespace omega
 {
-    class Omega
-    {
-    private:
-        // Components
-        Config _config;
+    class Arm;
+    class BallTracker;
+    class Camera;
+    class Config;
+    class Gripper;
+    class Publisher;
+    class RobotTracker;
+    class Timer;
+    class Wheels;
 
-        // Subscribers
-        void _image_callback(const sensor_msgs::Image::ConstPtr &msg);
-        void _joint_state_callback(const sensor_msgs::JointState::ConstPtr msg);
-        void _imu_callback(const sensor_msgs::Imu::ConstPtr msg);
-        void _timer_callback(const ros::TimerEvent &event);
-        image_transport::Subscriber _image_sub;
-        ros::Subscriber _joint_state_sub;
-        ros::Subscriber _imu_sub;
-        ros::Timer _timer;
-        
-        // Publishers
-        image_transport::Publisher _debug_image_pub;
-        ros::Publisher _right_wheel_pub;
-        ros::Publisher _left_wheel_pub;
-        ros::Publisher _arm_pub;
-        ros::Publisher _gripper_pub;
-        
+    class Omega
+    {        
     public:
-        Omega(ros::NodeHandle &node);    
+        Arm *arm;
+        BallTracker *ball_tracker;
+        Camera *camera;
+        Config *config;
+        Gripper *gripper;
+        Publisher *publisher;
+        RobotTracker *robot_tracker;
+        Timer *timer;
+        Wheels *wheels;
+
+        Omega(ros::NodeHandle *node);
+        void joint_state_update(const sensor_msgs::JointState::ConstPtr &msg);
+        void imu_update(const sensor_msgs::Imu::ConstPtr &msg);
+        void image_update(const sensor_msgs::Image::ConstPtr &msg);
+        void grasp_state_update(const turtlebot3_msgs::GraspState::ConstPtr &msg);
+        void timer_update(const ros::TimerEvent &event);
+        ~Omega();
     };
 }
+
+#define OMEGA_STRING2(s) #s
+#define OMEGA_STRING(s) OMEGA_STRING2(s)
+
+#define OMEGA_CONFIG(s, v) if (!node.getParam(OMEGA_STRING(s), v)) { const char *error = "Failed to get parameter " OMEGA_STRING(s); ROS_ERROR(error); throw std::runtime_error(error); }
+#define OMEGA_CONFIG_VECTOR(s, n, v) { std::vector<double> b; if (node.getParam(OMEGA_STRING(s), b) && b.size() == n) v = Eigen::Matrix<double, n, 1>::Map(b.data()); else { const char *error = "Failed to get parameter " OMEGA_STRING(s); ROS_ERROR(error); throw std::runtime_error(error); } }
