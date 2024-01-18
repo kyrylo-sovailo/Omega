@@ -2,6 +2,7 @@
 #include <opencv2/core.hpp>
 #include <Eigen/Dense>
 #include <ros/ros.h>
+#include <vector>
 
 namespace omega
 {
@@ -10,10 +11,6 @@ namespace omega
     ///Detects and tracks balls
     class BallTracker
     {
-    private:
-        Omega *_owner;
-        std::Vector<Ball> _balls;
-
     public:
         struct Ball
         {
@@ -23,10 +20,15 @@ namespace omega
 
             Eigen::Vector2d get_position() const;
             Eigen::Vector2d get_velocity() const;
-            Eigen::Vector2d get_position_variance() const;
-            Eigen::Vector2d get_velocity_variance() const;
+            Eigen::Vector2d get_position_stddev() const;
+            Eigen::Vector2d get_velocity_stddev() const;
         };
+    
+    private:
+        Omega *_owner;
+        std::vector<Ball> _balls;
 
+    public:
         double radius;
         double roll_distance;
         double timeout;

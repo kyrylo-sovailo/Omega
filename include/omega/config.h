@@ -7,7 +7,6 @@ namespace omega
     {
     public:
         bool debug;
-        double initialization_time;
         double distance_to_ball;
         double distance_to_wall;
 

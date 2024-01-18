@@ -15,14 +15,14 @@ namespace omega
         Eigen::Matrix3d _variance;
     
     public:
-        RobotTracker(ros::NodeHandle *node, OmegaHeader *header);
+        RobotTracker(ros::NodeHandle *node, Omega *owner);
         void update(ros::Time time, const cv::Mat &image);
         void update(ros::Time time, double linear, double angular);
         void update(ros::Time time);
 
         Eigen::Vector2d get_position() const;
         double get_orientation() const;
-        Eigen::Vector2d get_position_variance() const;
-        double get_orientation_variance() const;
+        Eigen::Vector2d get_position_stddev() const;
+        double get_orientation_stddev() const;
     };
 };
