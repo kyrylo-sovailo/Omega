@@ -27,12 +27,12 @@ namespace omega
             
         };
 
-        Arm *arm = nullptr;
-        BallTracker *ball_tracker = nullptr;
-        Camera *camera = nullptr;
+        //Arm *arm = nullptr;
+        //BallTracker *ball_tracker = nullptr;
+        //Camera *camera = nullptr;
         Config *config = nullptr;
-        Gripper *gripper = nullptr;
-        RobotTracker *robot_tracker = nullptr;
+        //Gripper *gripper = nullptr;
+        //RobotTracker *robot_tracker = nullptr;
         Timer *timer = nullptr;
         Wheels *wheels = nullptr;
 
@@ -46,8 +46,5 @@ namespace omega
     };
 }
 
-#define OMEGA_STRING2(s) #s
-#define OMEGA_STRING(s) OMEGA_STRING2(s)
-
-#define OMEGA_CONFIG(s, v) if (!node->getParam(OMEGA_STRING(s), v)) { const char *error = "Failed to get parameter " OMEGA_STRING(s); ROS_ERROR(error); throw std::runtime_error(error); }
-#define OMEGA_CONFIG_VECTOR(s, n, v) { std::vector<double> b; if (node->getParam(OMEGA_STRING(s), b) && b.size() == n) v = Eigen::Matrix<double, n, 1>::Map(b.data()); else { const char *error = "Failed to get parameter " OMEGA_STRING(s); ROS_ERROR(error); throw std::runtime_error(error); } }
+#define OMEGA_CONFIG(s, v) if (!node->getParam(s, v)) { const char *error = "Failed to get parameter " s; ROS_ERROR(error); throw std::runtime_error(error); }
+#define OMEGA_CONFIG_VECTOR(s, n, v) { std::vector<double> b; if (node->getParam(s, b) && b.size() == n) v = Eigen::Matrix<double, n, 1>::Map(b.data()); else { const char *error = "Failed to get parameter " s; ROS_ERROR(error); throw std::runtime_error(error); } }

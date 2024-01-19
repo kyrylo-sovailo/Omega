@@ -9,14 +9,16 @@ namespace omega
     class Wheels
     {
     private:
-        //Listener
-        double _last_left_wheel = 0, _last_right_wheel = 0;
-        ros::Time _last_time;
-        double _linear_speed = 0, _angular_speed = 0;
+        Omega *_owner;
+        
+        //Subscriber
+        double _last_left_position = 0, _last_right_position = 0;
+        ros::Time _last_received;
+        double _last_linear_speed = 0, _last_angular_speed = 0;
 
         //Publisher
         ros::Publisher _right_pub, _left_pub;
-        ros::Time _last_command;
+        ros::Time _last_sent;
         double _linear_goal = 0, _linear_end_goal = 0, _angular_goal = 0, _angular_end_goal = 0;
     
     public:

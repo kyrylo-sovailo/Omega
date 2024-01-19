@@ -18,7 +18,7 @@
     <arg name="robot_name" value="$(arg robot_name)" />
     <arg name="ground_truth" value="$(arg ground_truth)" />
     <arg name="with_arm" value="True" />
-    <arg name="paused" value="False" />
+    <arg name="paused" value="True" />
     <arg name="gazebo_gui" value="True" />
 
     <arg name="world_name" value="$(arg world_name)" />

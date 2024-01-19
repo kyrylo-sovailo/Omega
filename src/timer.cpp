@@ -8,4 +8,6 @@ omega::Timer::Timer(ros::NodeHandle *node, Omega *owner)
 
     //Technical
     _timer = node->createTimer(ros::Duration(1 / frequency), &Omega::timer_update, owner);
+
+    ROS_INFO("omega::Timer initialized");
 }

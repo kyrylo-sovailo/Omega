@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 project(omega)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 find_package(catkin REQUIRED COMPONENTS roscpp std_msgs sensor_msgs trajectory_msgs turtlebot3_msgs image_transport cv_bridge)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(OpenCV REQUIRED)
@@ -19,13 +21,13 @@ catkin_package(
 ###########
 
 add_executable(omega
-  src/arm.cpp
-  src/ball_tracker.cpp
-  src/camera.cpp
+  # src/arm.cpp
+  # src/ball_tracker.cpp
+  # src/camera.cpp
   src/config.cpp
-  src/gripper.cpp
+  # src/gripper.cpp
   src/omega.cpp
-  src/robot_tracker.cpp
+  # src/robot_tracker.cpp
   src/timer.cpp
   src/wheels.cpp
 )

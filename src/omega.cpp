@@ -10,26 +10,29 @@
 
 omega::Omega::Omega(ros::NodeHandle *node)
 {
+    ROS_INFO("Omega initialization started");
     _joint_state_sub = node->subscribe("joints/joint_states", 1, &Omega::joint_state_update, this);
     config = new Config(node);
     timer = new Timer(node, this);
-    camera = new Camera(node, this);
-    arm = new Arm(node, this);
-    gripper = new Gripper(node, this);
+    //camera = new Camera(node, this);
+    //arm = new Arm(node, this);
+    //gripper = new Gripper(node, this);
     wheels = new Wheels(node, this);
-    ball_tracker = new BallTracker(node, this);
-    robot_tracker = new RobotTracker(node, this);
+    //ball_tracker = new BallTracker(node, this);
+    //robot_tracker = new RobotTracker(node, this);
+
+    wheels->set_speed(0.5, 0.0);
 }
 
 void omega::Omega::joint_state_update(const sensor_msgs::JointState::ConstPtr &msg)
 {
     ros::Time now = ros::Time::now();
-    arm->update(now, msg);
+    //arm->update(now, msg);
     wheels->update(now, msg);
     
     double linear, angular;
     wheels->get_speed(&linear, &angular);
-    robot_tracker->update(now, linear, angular);
+    //robot_tracker->update(now, linear, angular);
 }
 
 void omega::Omega::imu_update(const sensor_msgs::Imu::ConstPtr &msg)
@@ -41,15 +44,15 @@ void omega::Omega::image_update(const sensor_msgs::Image::ConstPtr &msg)
 {
     ros::Time now = ros::Time::now();
     cv::Mat image;
-    camera->update(msg, image);
-    robot_tracker->update(now, image);
-    ball_tracker->update(now, image);
+    //camera->update(msg, image);
+    //robot_tracker->update(now, image);
+    //ball_tracker->update(now, image);
 }
 
 void omega::Omega::grasp_state_update(const turtlebot3_msgs::GraspState::ConstPtr &msg)
 {
     ros::Time now = ros::Time::now();
-    gripper->update(now, msg);
+    //gripper->update(now, msg);
 }
 
 void omega::Omega::timer_update(const ros::TimerEvent &event)
@@ -59,12 +62,12 @@ void omega::Omega::timer_update(const ros::TimerEvent &event)
 
 omega::Omega::~Omega()
 {
-    if (robot_tracker != nullptr) delete robot_tracker;
-    if (ball_tracker != nullptr) delete ball_tracker;
+    //if (robot_tracker != nullptr) delete robot_tracker;
+    //if (ball_tracker != nullptr) delete ball_tracker;
     if (wheels != nullptr) delete wheels;
-    if (gripper != nullptr) delete gripper;
-    if (arm != nullptr) delete arm;
-    if (camera != nullptr) delete camera;
+    //if (gripper != nullptr) delete gripper;
+    //if (arm != nullptr) delete arm;
+    //if (camera != nullptr) delete camera;
     if (timer != nullptr) delete timer;
     if (config != nullptr) delete config;
 }
