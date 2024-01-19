@@ -7,14 +7,14 @@ timer:
   frequency: 10 # [Hz]
 
 camera:
-  base_position: [ 0, 0, 0 ]  # [m, m, m]
-  blur_strength: 3            # [1]
-  blur_size: 5                # [pix]
+  base_position: [ 0.164, 0, 0.033 ]  # [m, m, m]
+  blur_strength: 3                    # [1]
+  blur_size: 5                        # [pixel]
 
 arm:
-  base_position: [ 0, 0, 0 ]        # [m, m, m]
-  idle_position: [ 0.1, 0.1, 0.1 ]  # [m, m, m]
-  idle_pitch: 0                     # [rad]
+  base_position: [ 0.136, 0, 0.0463 ] # [m, m, m]
+  idle_position: [ 0.1, 0.1, 0.1 ]    # [m, m, m]
+  idle_pitch: 0                       # [rad]
   l: [ 0.0765, 0.1499, 0.15, 0.14 ]
   q_init: [ 0, 1.41, 0.1608, 0 ]
   q_min: [ -1.6, -1.6, -1.6, -1.6 ]
@@ -34,7 +34,7 @@ wheels:
   max_angular_acc: 6.0  # [rad/s2]
 
 ball_tracker:
-  radius: 0.05        # [m]
+  radius: 0.032       # [m]
   roll_distance: 5    # [m]
   
   min_hue: 6          # [color]
