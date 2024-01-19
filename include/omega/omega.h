@@ -22,6 +22,11 @@ namespace omega
         ros::Subscriber _joint_state_sub;
     
     public:
+        enum class State
+        {
+            
+        };
+
         Arm *arm = nullptr;
         BallTracker *ball_tracker = nullptr;
         Camera *camera = nullptr;

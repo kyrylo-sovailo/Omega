@@ -19,9 +19,10 @@ namespace omega
         void _update(const sensor_msgs::CameraInfo::ConstPtr &msg);
         
     public:
+        Eigen::Vector3d base_position;
         double blur_strength;
         int blur_size;
-        Eigen::Matrix<double, 3, 4> matrix;
+        Eigen::Matrix<double, 4, 4> matrix, matrix_inverse;
 
         Camera(ros::NodeHandle *node, Omega *owner);
         void update(const sensor_msgs::ImageConstPtr &msg, cv::Mat &image);

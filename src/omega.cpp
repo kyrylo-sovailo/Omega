@@ -22,28 +22,63 @@ omega::Omega::Omega(ros::NodeHandle *node)
 }
 
 void omega::Omega::joint_state_update(const sensor_msgs::JointState::ConstPtr &msg)
-{}
+{
+    ros::Time now = ros::Time::now();
+    arm->update(now, msg);
+    wheels->update(now, msg);
+    
+    double linear, angular;
+    wheels->get_speed(&linear, &angular);
+    robot_tracker->update(now, linear, angular);
+}
 
 void omega::Omega::imu_update(const sensor_msgs::Imu::ConstPtr &msg)
-{}
+{
+    //IMU not implemented
+}
 
 void omega::Omega::image_update(const sensor_msgs::Image::ConstPtr &msg)
-{}
+{
+    ros::Time now = ros::Time::now();
+    cv::Mat image;
+    camera->update(msg, image);
+    robot_tracker->update(now, image);
+    ball_tracker->update(now, image);
+}
 
 void omega::Omega::grasp_state_update(const turtlebot3_msgs::GraspState::ConstPtr &msg)
-{}
+{
+    ros::Time now = ros::Time::now();
+    gripper->update(now, msg);
+}
 
 void omega::Omega::timer_update(const ros::TimerEvent &event)
-{}
+{
+    wheels->update(event.current_real);
+}
 
 omega::Omega::~Omega()
-{}
+{
+    if (robot_tracker != nullptr) delete robot_tracker;
+    if (ball_tracker != nullptr) delete ball_tracker;
+    if (wheels != nullptr) delete wheels;
+    if (gripper != nullptr) delete gripper;
+    if (arm != nullptr) delete arm;
+    if (camera != nullptr) delete camera;
+    if (timer != nullptr) delete timer;
+    if (config != nullptr) delete config;
+}
 
-int main(int argc, char **argv)
+int _main(int argc, char **argv)
 {
     ros::init(argc, argv, "omega_node");
     ros::NodeHandle node;
     omega::Omega omega(&node);
     ros::spin();
     return 0;
+}
+
+int main(int argc, char **argv)
+{
+    return _main(argc, argv);
 }
