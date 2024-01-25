@@ -25,7 +25,7 @@ add_executable(omega
   # src/ball_tracker.cpp
   # src/camera.cpp
   src/config.cpp
-  # src/gripper.cpp
+  src/gripper.cpp
   src/omega.cpp
   # src/robot_tracker.cpp
   src/timer.cpp

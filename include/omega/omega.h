@@ -31,10 +31,12 @@ namespace omega
         //BallTracker *ball_tracker = nullptr;
         //Camera *camera = nullptr;
         Config *config = nullptr;
-        //Gripper *gripper = nullptr;
+        Gripper *gripper = nullptr;
         //RobotTracker *robot_tracker = nullptr;
         Timer *timer = nullptr;
         Wheels *wheels = nullptr;
+
+        double start_delay;
 
         Omega(ros::NodeHandle *node);
         void joint_state_update(const sensor_msgs::JointState::ConstPtr &msg);
