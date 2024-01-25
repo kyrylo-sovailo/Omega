@@ -15,13 +15,11 @@ omega::Omega::Omega(ros::NodeHandle *node)
     config = new Config(node);
     timer = new Timer(node, this);
     //camera = new Camera(node, this);
-    //arm = new Arm(node, this);
+    arm = new Arm(node, this);
     //gripper = new Gripper(node, this);
     wheels = new Wheels(node, this);
     //ball_tracker = new BallTracker(node, this);
     //robot_tracker = new RobotTracker(node, this);
-
-    wheels->set_speed(0.5, 0.0);
 }
 
 void omega::Omega::joint_state_update(const sensor_msgs::JointState::ConstPtr &msg)
@@ -66,7 +64,7 @@ omega::Omega::~Omega()
     //if (ball_tracker != nullptr) delete ball_tracker;
     if (wheels != nullptr) delete wheels;
     //if (gripper != nullptr) delete gripper;
-    //if (arm != nullptr) delete arm;
+    if (arm != nullptr) delete arm;
     //if (camera != nullptr) delete camera;
     if (timer != nullptr) delete timer;
     if (config != nullptr) delete config;

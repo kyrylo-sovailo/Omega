@@ -21,7 +21,7 @@ catkin_package(
 ###########
 
 add_executable(omega
-  # src/arm.cpp
+  src/arm.cpp
   # src/ball_tracker.cpp
   # src/camera.cpp
   src/config.cpp

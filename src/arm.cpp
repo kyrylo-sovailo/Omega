@@ -15,13 +15,17 @@ omega::Arm::Arm(ros::NodeHandle *node, Omega *owner) : _owner(owner)
     OMEGA_CONFIG_VECTOR("arm/q_max", 4, q_max);
     OMEGA_CONFIG_VECTOR("arm/w_max", 4, w_max);
 
+    //Technical
+    _pub = node->advertise<trajectory_msgs::JointTrajectory>("joints/arm_trajectory_controller/command", 1, true);
+
     //State
     boost::shared_ptr<const sensor_msgs::JointState> msg = ros::topic::waitForMessage<sensor_msgs::JointState>("joints/joint_states", ros::Duration(5.0));
     if (msg == nullptr) { const char *error = "Failed to receive robot state"; ROS_ERROR(error); throw std::runtime_error(error); }
     update(ros::Time::now(), msg);
 
-    //Technical
-    _pub = node->advertise<trajectory_msgs::JointTrajectory>("joints/arm_trajectory_controller/command", 1, true);
+    start_move_idle(ros::Time::now());
+
+    ROS_INFO("omega::Arm initialized");
 }
 
 void omega::Arm::update(ros::Time time, const sensor_msgs::JointState::ConstPtr &msg)
@@ -53,9 +57,9 @@ bool omega::Arm::start_move(ros::Time now, Eigen::Vector3d point, double pitch)
     //Inverse kinematics
     point -= base_position;
     Eigen::Vector4d goal;
-    goal(0) = std::atan2(point.x(), point.y());
-    point = Eigen::AngleAxisd(-goal(0), Eigen::Vector3d::UnitZ()) * point;
-    const Eigen::Vector2d point2(point.x() - l(3) * std::sin(pitch), point.z() + l(3) * std::cos(pitch));
+    goal(0) = std::atan2(point.y(), point.x());
+    point = Eigen::AngleAxisd(-goal(0), Eigen::Vector3d::UnitZ()) * (point - Eigen::Vector3d(0, 0, l(0)));
+    const Eigen::Vector2d point2(point.x() - l(3) * std::cos(pitch), point.z() + l(3) * std::sin(pitch));
     const double length2 = point2.norm();
     const double alpha = std::atan2(point2.y(), point2.x());
     const double cos_beta = (l(1) * l(1) + length2 * length2 - l(2) * l(2)) / (2 * l(1) * length2);
@@ -64,7 +68,7 @@ bool omega::Arm::start_move(ros::Time now, Eigen::Vector3d point, double pitch)
     goal(1) = alpha + beta; //positive solution
     Eigen::Vector2d point1(l(1) * std::cos(goal(1)), l(1) * std::sin(goal(1)));
     goal(2) = std::atan2((point2 - point1).y(), (point2 - point1).x()) - goal(1);
-    goal(3) = pitch - goal(1) - goal(2) - M_PI / 2;
+    goal(3) = pitch - goal(1) - goal(2);
     goal -= q_init;
     if ((goal.array() > q_max.array()).any() || (goal.array() < q_min.array()).any()) return false;
 
@@ -83,7 +87,7 @@ bool omega::Arm::start_move(ros::Time now, Eigen::Vector3d point, double pitch)
     Eigen::Vector4d::Map(command_point.positions.data()) = goal;
     command_point.time_from_start = ros::Duration(duration);
     command.points.push_back(command_point);
-    _pub.publish(command);
+    _pub.publish(command); ROS_INFO("Arm command sent");
     return true;
 }
 

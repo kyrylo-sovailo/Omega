@@ -27,7 +27,7 @@ namespace omega
             
         };
 
-        //Arm *arm = nullptr;
+        Arm *arm = nullptr;
         //BallTracker *ball_tracker = nullptr;
         //Camera *camera = nullptr;
         Config *config = nullptr;
