@@ -28,11 +28,11 @@ namespace omega
         };
 
         Arm *arm = nullptr;
-        //BallTracker *ball_tracker = nullptr;
-        //Camera *camera = nullptr;
+        BallTracker *ball_tracker = nullptr;
+        Camera *camera = nullptr;
         Config *config = nullptr;
         Gripper *gripper = nullptr;
-        //RobotTracker *robot_tracker = nullptr;
+        RobotTracker *robot_tracker = nullptr;
         Timer *timer = nullptr;
         Wheels *wheels = nullptr;
 
@@ -46,6 +46,8 @@ namespace omega
         void timer_update(const ros::TimerEvent &event);
         ~Omega();
     };
+
+    template <typename T> inline constexpr T sqr(T a) { return a * a; }
 }
 
 #define OMEGA_CONFIG(s, v) if (!node->getParam(s, v)) { const char *error = "Failed to get parameter " s; ROS_ERROR(error); throw std::runtime_error(error); }

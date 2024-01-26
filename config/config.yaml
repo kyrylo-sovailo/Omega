@@ -37,8 +37,9 @@ wheels:
   max_angular_acc: 6.0  # [rad/s2]
 
 ball_tracker:
-  radius: 0.032       # [m]
-  roll_distance: 5    # [m]
+  radius: 0.032               # [m]
+  position_stddev_time: 0.01  # [m/s]
+  speed_stddev_time: 0.01     # [m/s^2]
   
   min_hue: 6          # [color]
   max_hue: 50         # [color]

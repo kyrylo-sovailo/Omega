@@ -21,7 +21,9 @@ namespace omega
         const Eigen::Matrix<T, Y, X> &C,
         const Eigen::Matrix<T, Y, Y> &R)
     {
-        const Eigen::Matrix<T, X, Y> K = (C * P * C.transport() + R).colPivHouseholderQr().solve(P * C.transpose());
+        const Eigen::Matrix<T, Y, Y> K_A = C * P * C.transpose() + R;
+        const Eigen::Matrix<T, X, Y> K_b = P * C.transpose();
+        const Eigen::Matrix<T, X, Y> K = K_A.transpose().colPivHouseholderQr().solve(K_b.transpose()).transpose(); //K * K_A = K_b <=> K_A^T * K^T = K_b^T
         x = x + K * (y - C * x);
         P = (Eigen::Matrix<T, X, X>::Identity() - K * C) * P * (Eigen::Matrix<T, X, X>::Identity() - K * C).transpose() + K * R * K.transpose(); 
     }

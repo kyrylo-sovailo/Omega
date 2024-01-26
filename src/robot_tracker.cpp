@@ -32,3 +32,8 @@ double omega::RobotTracker::get_orientation_stddev() const
 {
     return std::sqrt(_variance(2, 2));
 }
+
+Eigen::Matrix3d omega::RobotTracker::get_variance() const
+{
+    return _variance;
+}

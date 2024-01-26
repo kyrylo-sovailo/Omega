@@ -24,5 +24,6 @@ namespace omega
         double get_orientation() const;
         Eigen::Vector2d get_position_stddev() const;
         double get_orientation_stddev() const;
+        Eigen::Matrix3d get_variance() const;
     };
 };

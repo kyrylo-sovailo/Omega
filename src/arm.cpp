@@ -128,10 +128,10 @@ bool omega::Arm::get_move_finished() const
 
 double omega::Arm::get_error() const
 {
-    const Eigen::Affine3d t1 = Eigen::AngleAxisd(_pose(0), Eigen::Vector3d::UnitZ()) * Eigen::Translation3d(0, 0, l(0)) * Eigen::AngleAxisd(_pose(0) + q_init(0), Eigen::Vector3d::UnitX());
-    const Eigen::Affine3d t2 = Eigen::Translation3d(l(1), 0, 0) * Eigen::AngleAxisd(_pose(1) + q_init(1), Eigen::Vector3d::UnitX());
-    const Eigen::Affine3d t3 = Eigen::Translation3d(l(2), 0, 0) * Eigen::AngleAxisd(_pose(2) + q_init(2), Eigen::Vector3d::UnitX());
-    const Eigen::Affine3d t4 = Eigen::Translation3d(l(3), 0, 0) * Eigen::AngleAxisd(_pose(3) + q_init(3), Eigen::Vector3d::UnitX());
+    const Eigen::Affine3d t1 = Eigen::AngleAxisd(_pose(0) + q_init(0), Eigen::Vector3d::UnitZ()) * Eigen::Translation3d(0, 0, l(0)) * Eigen::AngleAxisd(M_PI / 2, Eigen::Vector3d::UnitX());
+    const Eigen::Affine3d t2 = Eigen::AngleAxisd(_pose(1) + q_init(1), Eigen::Vector3d::UnitZ()) * Eigen::Translation3d(l(1), 0, 0);
+    const Eigen::Affine3d t3 = Eigen::AngleAxisd(_pose(2) + q_init(2), Eigen::Vector3d::UnitZ()) * Eigen::Translation3d(l(2), 0, 0);
+    const Eigen::Affine3d t4 = Eigen::AngleAxisd(_pose(3) + q_init(3), Eigen::Vector3d::UnitZ()) * Eigen::Translation3d(l(3), 0, 0);
     const Eigen::Affine3d t = t1 * t2 * t3 * t4;
     Eigen::Vector3d position = t * Eigen::Vector3d::Zero();
     position += base_position;
