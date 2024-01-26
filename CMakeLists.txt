@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 project(omega)
 
-set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Debug)
 
 find_package(catkin REQUIRED COMPONENTS roscpp std_msgs sensor_msgs trajectory_msgs turtlebot3_msgs image_transport cv_bridge)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)

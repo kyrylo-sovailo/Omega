@@ -26,3 +26,9 @@ Thumbs.db
 # clangd #
 ##########
 .cache/
+
+# Temporary #
+#############
+TURTLESTICK/
+commands.fdisk
+

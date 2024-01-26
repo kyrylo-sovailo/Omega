@@ -27,6 +27,8 @@ if [ "$1" != "--root" -a "$1" != "--user-build" -a "$1" != "--user-copy" ]; then
     if [   -n "$2" ]; then echo "${COLOR_ERROR}Too many parameters"; exit 1; fi
     export ENTRY_USER=$(whoami)
     export ENTRY_DIR=$(dirname $(readlink -f $0))
+    export ENTRY_PATH=${PATH}
+    export ENTRY_LIBRARY_PATH=${LD_LIBRARY_PATH}
     export ENTRY_DEVICE=$1
     sudo --preserve-env -- $0 --root
 
@@ -41,7 +43,7 @@ elif [ "$1" = "--root" ]; then
     if [ $(blkid ${ENTRY_DEVICE} | grep -o -e 'PTUUID="[a-zA-Z0-9-]*"' | cut -d \" -f 2 | wc -m) -gt 10 ]; then printf_error "Device PTUUID is unusually long"; exit 1; fi
 
     printf_success "Execute user build script" #MILESTONE
-    su ${ENTRY_USER} --preserve-environment -- $0 --user-build
+    sudo --user ${ENTRY_USER} --preserve-env -- $0 --user-build
     if [ $? -ne 0 ]; then printf_error "User build script failed"; exit 1; fi
 
     printf_success "Unmount partition" #MILESTONE
@@ -77,7 +79,7 @@ elif [ "$1" = "--root" ]; then
     if [ $? -ne 0 ]; then printf_error "mount failed"; exit 1; fi
 
     printf_success "Execute user copy script" #MILESTONE
-    su ${ENTRY_USER} --preserve-environment -- $0 --user-copy
+    sudo --user ${ENTRY_USER} --preserve-env -- $0 --user-copy
     if [ $? -ne 0 ]; then printf_error "User copy script failed"; fi
 
     printf_success "Unmount partition" #MILESTONE
@@ -88,7 +90,8 @@ elif [ "$1" = "--user-build" ]; then
     echo USER BUILD SCRIPT
     if [ "$(whoami)" = "root" ]; then printf_error "Must not be run as root"; exit 1; fi
     if [ -z "${ENTRY_USER}" -o -z "${ENTRY_DIR}" -o -z "${ENTRY_DEVICE}" ]; then printf_error "Environment invalid"; exit 1; fi
-    source ~/.bashrc
+    export PATH=${ENTRY_PATH}
+    export LD_LIBRARY_PATH=${ENTRY_LIBRARY_PATH}
 
     printf_success "Switch to install profile" #MILESTONE
     cd ${ROS_WORKSPACE}
@@ -114,13 +117,14 @@ elif [ "$1" = "--user-copy" ]; then
     echo USER COPY SCRIPT
     if [ "$(whoami)" = "root" ]; then printf_error "Must not be run as root"; exit 1; fi
     if [ -z "${ENTRY_USER}" -o -z "${ENTRY_DIR}" -o -z "${ENTRY_DEVICE}" ]; then printf_error "Environment invalid"; exit 1; fi
-    source ~/.bashrc
+    export PATH=${ENTRY_PATH}
+    export LD_LIBRARY_PATH=${ENTRY_LIBRARY_PATH}
 
     printf_success "Copy files" #MILESTONE
     cd "${ENTRY_DIR}/TURTLESTICK"
     FILES_DIR="$(rospack find turtlebot3_usb_launcher)/usb_stick_files"
     if [ ! -d "${FILES_DIR}" ]; then printf_error "usb_stick_files directory not found"; exit 1; fi
-    cp -rp "${FILES_DIR}/*" .
+    cp -rp "${FILES_DIR}"/* .
     if [ $? -ne 0 ]; then printf_error "File copy failed"; exit 1; fi
     cp -r "${ROS_WORKSPACE}/../install_stick/." install/
     if [ $? -ne 0 ]; then printf_error "File copy failed"; exit 1; fi
@@ -135,6 +139,15 @@ elif [ "$1" = "--user-copy" ]; then
     cd "${ENTRY_DIR}/TURTLESTICK"
     rm launch/*.launch
 
+    printf_success "Copy start_robot.launch" #MILESTONE
+    for PACKAGE in ${ENTRY_PACKAGES}
+    do
+        START_ROBOT_PATH=$(rospack find ${PACKAGE})/launch/start_robot.launch
+        if [ -f "${START_ROBOT_PATH}" -a "${PACKAGE}" != "turtlebot3_behavior_exercise" ]; then
+            PACKAGE_NEW_NAME=$(echo ${PACKAGE} | sed 's/turtlebot3_//g')
+            cp "$START_ROBOT_PATH" "launch/${PACKAGE_NEW_NAME}.launch"
+        fi
+    done
 else
     printf_error "Argument invalid"
 fi
