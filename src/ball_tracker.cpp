@@ -226,12 +226,12 @@ void omega::BallTracker::update(ros::Time now, const cv::Mat &bgr_image)
     std::vector<std::vector<cv::Point>> contours;
     _find_countours(bgr_image, &contours);
 
-    std::vector<BallVision> balls;
-    _find_circles(contours, &balls);
+    //std::vector<BallVision> balls;
+    //_find_circles(contours, &balls);
 
-    _find_positions(&balls);
-    _match(now, &balls);
-    _update(now, balls);
+    //_find_positions(&balls);
+    //_match(now, &balls);
+    //_update(now, balls);
 }
 
 void omega::BallTracker::update(ros::Time now)
@@ -243,6 +243,7 @@ void omega::BallTracker::update(ros::Time now)
         if (now - _balls[i].last_seen < ros::Duration(timeout)) _balls.erase(_balls.begin() + i);
     }
 
+    /*
     Eigen::Matrix4d A;
     A.setZero();
     A(0, 2) = 1;
@@ -263,6 +264,7 @@ void omega::BallTracker::update(ros::Time now)
     }
 
     _last_update = now;
+    */
 }
 
 const std::vector<omega::BallTracker::Ball> &omega::BallTracker::get_balls() const

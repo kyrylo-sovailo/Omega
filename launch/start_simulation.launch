@@ -27,7 +27,7 @@
     <arg name="z_pos" value="0.02"/>
     <arg name="roll"  value="0.0"/>
     <arg name="pitch" value="0.0"/>
-    <arg name="yaw"   value="-1.570796327"/>
+    <arg name="yaw"   value="1.5707963267948966"/>
   </include>
 
   <!-- spawn balls -->
