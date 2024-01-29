@@ -23,7 +23,7 @@ omega::Camera::Camera(ros::NodeHandle *node, Omega *owner) : _owner(owner)
     OMEGA_CONFIG("camera/blur_strength", blur_strength);
     OMEGA_CONFIG("camera/blur_size", blur_size);
     boost::shared_ptr<const sensor_msgs::CameraInfo> msg = ros::topic::waitForMessage<sensor_msgs::CameraInfo>("sensor/camera/camera_info", ros::Duration(5.0));
-    if (msg == nullptr) { const char *error = "Failed to receive camera info"; ROS_ERROR(error); throw std::runtime_error(error); }
+    if (msg == nullptr) { const char *error = "Failed to receive camera info"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
     _update(msg);
 
     //Technical
