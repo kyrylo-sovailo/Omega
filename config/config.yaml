@@ -40,9 +40,8 @@ ball_tracker:
   position_stddev_time: 0.01  # [m/s]
   speed_stddev_time: 0.01     # [m/s^2]
 
-  # color configuration
+  # Further configuration
   # in specialized configs
-  dilate_size: 2      # [pix]
   
   min_radius: 5       # [pixel]
   min_area: 0.6       # [1]

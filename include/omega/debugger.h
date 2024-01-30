@@ -12,12 +12,17 @@ namespace omega
         image_transport::Publisher _pub;
     
     public:
+        static const cv::Scalar blue;
+        static const cv::Scalar green;
+        static const cv::Scalar red;
+
         bool active;
         
         Debugger(ros::NodeHandle *node);
         void draw_background(const cv::Mat &bgr_image);
         void draw_mask(const cv::Mat &binary_image);
-        void draw_circle();
+        void draw_circle(cv::Point center, int radius, const cv::Scalar &color);
+        void draw_rectangle(cv::Rect rect, const cv::Scalar &color);
         void publish();
     };
 }

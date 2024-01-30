@@ -2,6 +2,10 @@
 #include <omega/omega.h>
 #include <cv_bridge/cv_bridge.h>
 
+const cv::Scalar omega::Debugger::blue = cv::Scalar(255, 0, 0);
+const cv::Scalar omega::Debugger::green = cv::Scalar(0, 255, 0);
+const cv::Scalar omega::Debugger::red = cv::Scalar(0, 0, 255);
+
 omega::Debugger::Debugger(ros::NodeHandle *node)
 {
     OMEGA_CONFIG("debugger/active", active);
@@ -31,6 +35,22 @@ void omega::Debugger::draw_mask(const cv::Mat &binary_image)
         cv::bitwise_or(channels[1], binary_image, channels[1]);
         cv::bitwise_or(channels[2], binary_image, channels[2]);
         cv::merge(channels, _buffer);
+    }
+}
+
+void omega::Debugger::draw_circle(cv::Point center, int radius, const cv::Scalar &color)
+{
+    if (active)
+    {
+        cv::circle(_buffer, center, radius, color, 2);
+    }
+}
+
+void omega::Debugger::draw_rectangle(cv::Rect rect, const cv::Scalar &color)
+{
+    if (active)
+    {
+        cv::rectangle(_buffer, rect, color, 2);
     }
 }
 

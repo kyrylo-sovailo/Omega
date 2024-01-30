@@ -5,3 +5,5 @@ ball_tracker:
   max_saturation: 255 # [color]
   min_value: 110      # [color]
   max_value: 255      # [color]
+
+  dilate_size: 2      # [pix]

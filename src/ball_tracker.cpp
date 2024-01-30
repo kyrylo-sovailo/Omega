@@ -40,8 +40,8 @@ void omega::BallTracker::_find_countours(const cv::Mat &bgr_image, std::vector<s
     cv::inRange(hsv_image, lower, upper, binary_image);
 
     //Erode & dilate
-    cv::erode(binary_image, binary_image, cv::Mat(), cv::Point(-1, -1), dilate_size);
     cv::dilate(binary_image, binary_image, cv::Mat(), cv::Point(-1, -1), dilate_size);
+    cv::erode(binary_image, binary_image, cv::Mat(), cv::Point(-1, -1), dilate_size);
 
     //Publish
     _owner->debugger->draw_mask(binary_image);
@@ -60,6 +60,7 @@ void omega::BallTracker::_find_circles(const std::vector<std::vector<cv::Point>>
         if (0.8 * image_box.height > image_box.width) continue;
         const double image_radius_estimate = std::sqrt(image_box.width/2 * image_box.height/2);
         if (image_radius_estimate < min_radius) continue;
+        _owner->debugger->draw_rectangle(image_box, Debugger::red);
 
         //Calculate area and center
         BallVision ball;
@@ -90,6 +91,7 @@ void omega::BallTracker::_find_circles(const std::vector<std::vector<cv::Point>>
         }
         ball.image_radius /= contour->size();
         if (ball.image_radius < min_radius) continue;
+        _owner->debugger->draw_circle(cv::Point((int)ball.image_center.x(), (int)ball.image_center.y()), (int)ball.image_radius, Debugger::blue);
 
         //Calculare variance
         ball.image_radius_variance = 0;
@@ -232,10 +234,10 @@ void omega::BallTracker::update(ros::Time now, const cv::Mat &bgr_image)
     std::vector<std::vector<cv::Point>> contours;
     _find_countours(bgr_image, &contours);
 
-    //std::vector<BallVision> balls;
-    //_find_circles(contours, &balls);
+    std::vector<BallVision> balls;
+    _find_circles(contours, &balls);
 
-    //_find_positions(&balls);
+    _find_positions(&balls);
     //_match(now, &balls);
     //_update(now, balls);
 }
