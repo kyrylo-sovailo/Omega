@@ -1,0 +1,7 @@
+ball_tracker:
+  min_hue: 6          # [color]
+  max_hue: 50         # [color]
+  min_saturation: 80  # [color]
+  max_saturation: 255 # [color]
+  min_value: 110      # [color]
+  max_value: 255      # [color]

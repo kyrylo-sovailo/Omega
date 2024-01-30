@@ -3,6 +3,7 @@
 #include <omega/ball_tracker.h>
 #include <omega/camera.h>
 #include <omega/config.h>
+#include <omega/debugger.h>
 #include <omega/gripper.h>
 #include <omega/robot_tracker.h>
 #include <omega/timer.h>
@@ -18,6 +19,7 @@ omega::Omega::Omega(ros::NodeHandle *node)
     //Technical
     _joint_state_sub = node->subscribe("joints/joint_states", 1, &Omega::joint_state_update, this);
     config = new Config(node);
+    debugger = new Debugger(node);
     timer = new Timer(node, this);
     camera = new Camera(node, this);
     arm = new Arm(node, this);
@@ -52,6 +54,7 @@ void omega::Omega::image_update(const sensor_msgs::Image::ConstPtr &msg)
     camera->update(msg, image);
     robot_tracker->update(now, image);
     ball_tracker->update(now, image);
+    debugger->publish();
 }
 
 void omega::Omega::grasp_state_update(const turtlebot3_msgs::GraspState::ConstPtr &msg)
@@ -77,6 +80,7 @@ omega::Omega::~Omega()
     if (arm != nullptr) delete arm;
     if (camera != nullptr) delete camera;
     if (timer != nullptr) delete timer;
+    if (debugger != nullptr) delete debugger;
     if (config != nullptr) delete config;
 }
 

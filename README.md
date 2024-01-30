@@ -104,3 +104,13 @@ $ for t in $(rostopic list); do echo $t is $(rostopic type $t); done
 /tf is tf2_msgs/TFMessage
 /tf_static is tf2_msgs/TFMessage
 ```
+
+GIMP to OpenCV HSV values:
+GIMP:
+ - H in [0..360]
+ - S in [0..100]
+ - V in [0..100]
+OpenCV:
+ - H in [0..179]
+ - S in [0..255]
+ - V in [0..255]

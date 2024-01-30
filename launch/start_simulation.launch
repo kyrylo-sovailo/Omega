@@ -6,11 +6,18 @@
   <arg name="robot_name" default="omega" />
   <arg name="ground_truth" default="False" />
   <arg name="world_name" default="$(find tuda_turtlebot3_gazebo)/worlds/empty.world" />
+  <arg name="debug" default="True" />
   
-  <!-- start logics -->
-  <include file="$(find omega)/launch/start_robot.launch">
+  <!-- load simulation config config -->
+  <group ns="$(arg robot_name)">
+    <rosparam file="$(find omega)/config/config_simulation.yaml" command="load" />
+  </group>
+
+  <!-- start core -->
+  <include file="$(find omega)/launch/start_core.launch">
     <arg name="robot_name" default="$(arg robot_name)" />
     <arg name="ground_truth" default="$(arg ground_truth)" />
+    <arg name="debug" default="$(arg debug)" />
   </include>
 
   <!-- start simulation -->
@@ -32,9 +39,4 @@
 
   <!-- spawn balls -->
   <node name="spawn_ball_1" pkg="gazebo_ros" type="spawn_model" args="-database tennis_ball -sdf -model tennis_ball_1 -x 0.0 -y -0.5 -z 0.1" respawn="false" output="screen" />
-
-  <!-- start debug visualization -->
-  <node if="False" name="image_view_node" pkg="image_view" type="image_view" output="screen">
-    <param name="image" type="string" value="/$(arg robot_name)/debug/image" />
-  </node>
 </launch>

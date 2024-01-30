@@ -1,4 +1,5 @@
 #include <omega/camera.h>
+#include <omega/debugger.h>
 #include <omega/omega.h>
 #include <cv_bridge/cv_bridge.h>
 
@@ -30,6 +31,8 @@ omega::Camera::Camera(ros::NodeHandle *node, Omega *owner) : _owner(owner)
     image_transport::ImageTransport image_transfer(*node);
     _sub = image_transfer.subscribe("sensor/camera/image_rect_color", 1, &Omega::image_update, owner);
     _sub_info = node->subscribe("sensor/camera/camera_info", 1, &Camera::_update, this);
+
+    ROS_INFO("omega::Camera initialized");
 }
 
 void omega::Camera::update(const sensor_msgs::ImageConstPtr &msg, cv::Mat &image)
@@ -37,4 +40,5 @@ void omega::Camera::update(const sensor_msgs::ImageConstPtr &msg, cv::Mat &image
     cv_bridge::CvImagePtr image_pointer = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
     cv::GaussianBlur(image_pointer->image, image_pointer->image, cv::Size(blur_size, blur_size), blur_strength);
     image = image_pointer->image;
+    _owner->debugger->draw_background(image);
 }

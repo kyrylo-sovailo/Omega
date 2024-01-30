@@ -5,12 +5,17 @@
 <launch>
   <arg name="robot_name" default="omega" />
   <arg name="ground_truth" default="False" />
+  <arg name="debug" default="True" />
 
+  <!-- load robot config config -->
   <group ns="$(arg robot_name)">
-    <!-- load config into parameter server -->
-    <rosparam file="$(find omega)/config/config.yaml" command="load" />
-
-    <!-- start diff_drive -->
-    <node name="omega_node" pkg="omega" type="omega" output="screen" respawn="true" />
+    <rosparam file="$(find omega)/config/config_robot.yaml" command="load" />
   </group>
+
+  <!-- start core -->
+  <include file="$(find omega)/launch/start_core.launch">
+    <arg name="robot_name" default="$(arg robot_name)" />
+    <arg name="ground_truth" default="$(arg ground_truth)" />
+    <arg name="debug" default="$(arg debug)" />
+  </include>
 </launch>

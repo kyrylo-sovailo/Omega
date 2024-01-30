@@ -25,6 +25,6 @@ namespace omega
         Eigen::Matrix<double, 4, 4> matrix, matrix_inverse;
 
         Camera(ros::NodeHandle *node, Omega *owner);
-        void update(const sensor_msgs::ImageConstPtr &msg, cv::Mat &image);
+        void update(const sensor_msgs::ImageConstPtr &msg, cv::Mat &bgr_image);
     };
 }

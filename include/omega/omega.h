@@ -11,6 +11,7 @@ namespace omega
     class BallTracker;
     class Camera;
     class Config;
+    class Debugger;
     class Gripper;
     class RobotTracker;
     class Timer;
@@ -31,6 +32,7 @@ namespace omega
         BallTracker *ball_tracker = nullptr;
         Camera *camera = nullptr;
         Config *config = nullptr;
+        Debugger *debugger = nullptr;
         Gripper *gripper = nullptr;
         RobotTracker *robot_tracker = nullptr;
         Timer *timer = nullptr;

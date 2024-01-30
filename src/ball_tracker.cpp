@@ -2,6 +2,7 @@
 #include <omega/kalman.h>
 #include <omega/camera.h>
 #include <omega/robot_tracker.h>
+#include <omega/debugger.h>
 #include <omega/omega.h>
 #include <opencv2/imgproc.hpp>
 #include <cmath>
@@ -35,12 +36,15 @@ void omega::BallTracker::_find_countours(const cv::Mat &bgr_image, std::vector<s
     //Cutoff
     cv::Scalar lower(min_hue, min_saturation, min_value);
     cv::Scalar upper(max_hue, max_saturation, max_value);
-    cv::Mat binary_image = cv::Mat::zeros(bgr_image.size(), CV_8UC1);
-    cv::inRange(bgr_image, lower, upper, binary_image);
+    cv::Mat binary_image = cv::Mat::zeros(hsv_image.size(), CV_8UC1);
+    cv::inRange(hsv_image, lower, upper, binary_image);
 
     //Erode & dilate
     cv::erode(binary_image, binary_image, cv::Mat(), cv::Point(-1, -1), dilate_size);
     cv::dilate(binary_image, binary_image, cv::Mat(), cv::Point(-1, -1), dilate_size);
+
+    //Publish
+    _owner->debugger->draw_mask(binary_image);
 
     //Find contours
     cv::findContours(binary_image, *contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
@@ -219,6 +223,8 @@ omega::BallTracker::BallTracker(ros::NodeHandle *node, Omega *owner) : _owner(ow
     OMEGA_CONFIG("ball_tracker/min_radius", min_radius);
     OMEGA_CONFIG("ball_tracker/min_area", min_area);
     OMEGA_CONFIG("ball_tracker/timeout", timeout);
+
+    ROS_INFO("omega::BallTracker initialized");
 }
 
 void omega::BallTracker::update(ros::Time now, const cv::Mat &bgr_image)
