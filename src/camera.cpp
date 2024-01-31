@@ -6,14 +6,13 @@
 void omega::Camera::_update(const sensor_msgs::CameraInfo::ConstPtr &msg)
 {
     const Eigen::Matrix<double, 3, 4> p = Eigen::Matrix<double, 3, 4, Eigen::RowMajor>::Map(msg->P.data());
-    const Eigen::Matrix<double, 3, 3> k = Eigen::Matrix<double, 3, 3, Eigen::RowMajor>::Map(msg->K.data());
     Eigen::Matrix4d new_matrix;
-    new_matrix.block<3, 4>(0, 0) = k * p;
+    new_matrix.block<3, 4>(0, 0) = p;
     new_matrix.block<1, 4>(3, 0) = Eigen::Vector4d(0, 0, 0, 1);
     if (matrix != new_matrix)
     {
         matrix = new_matrix;
-        matrix_inverse = new_matrix.inverse();
+        matrix_inv = new_matrix.inverse();
     }
 }
 

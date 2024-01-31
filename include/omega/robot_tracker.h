@@ -13,6 +13,10 @@ namespace omega
         Omega *_owner;
         Eigen::Vector3d _state;
         Eigen::Matrix3d _variance;
+        bool _find_visible_segment(Eigen::Vector3d *source, Eigen::Vector3d *destination);
+        void _project_line();
+        Eigen::Vector2d _project_point(Eigen::Vector3d point);
+        Eigen::Vector2d _project_line(Eigen::Vector3d source, Eigen::Vector3d destination);
     
     public:
         RobotTracker(ros::NodeHandle *node, Omega *owner);

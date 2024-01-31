@@ -14,14 +14,16 @@ namespace omega
     public:
         struct Ball
         {
-            Eigen::Vector4d state;
-            Eigen::Matrix4d var;
+            Eigen::Vector4d local_state;
+            Eigen::Matrix4d local_var;
+            Eigen::Vector4d global_state;
+            Eigen::Matrix4d global_var;
             ros::Time last_seen;
 
-            Eigen::Vector2d get_position() const;
-            Eigen::Vector2d get_velocity() const;
-            Eigen::Vector2d get_position_stddev() const;
-            Eigen::Vector2d get_velocity_stddev() const;
+            Eigen::Vector2d get_position(bool global = false) const;
+            Eigen::Vector2d get_velocity(bool global = false) const;
+            Eigen::Vector2d get_position_stddev(bool global = false) const;
+            Eigen::Vector2d get_velocity_stddev(bool global = false) const;
         };
     
     private:
@@ -32,8 +34,10 @@ namespace omega
             double image_radius, image_radius_variance;
 
             //Balls
-            Eigen::Vector2d ball_position;
-            Eigen::Matrix2d ball_position_variance;
+            Eigen::Vector2d local_position;
+            Eigen::Matrix2d local_position_variance;
+            Eigen::Vector2d global_position;
+            Eigen::Matrix2d global_position_variance;
 
             //Matching
             Ball *match = nullptr;
@@ -48,7 +52,7 @@ namespace omega
         void _find_circles(const std::vector<std::vector<cv::Point>> &contours, std::vector<BallVision> *balls);
         void _find_positions(std::vector<BallVision> *balls);
         void _match(ros::Time now, std::vector<BallVision> *balls);
-        void _update(ros::Time now, const std::vector<BallVision> &balls);
+        void _correct(ros::Time now, const std::vector<BallVision> &balls);
 
     public:
         //Physical parameters
@@ -64,8 +68,9 @@ namespace omega
         double timeout;
 
         BallTracker(ros::NodeHandle *node, Omega *owner);
-        void update(ros::Time time, const cv::Mat &bgr_image);
-        void update(ros::Time time);
+        void update(ros::Time now, const cv::Mat &bgr_image);
+        void update(ros::Time now, double linear, double angular);
+        void update(ros::Time now);
         const std::vector<Ball> &get_balls() const;
     };
 };
