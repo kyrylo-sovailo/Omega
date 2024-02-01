@@ -22,13 +22,12 @@ namespace omega
         double _linear_goal = 0, _linear_end_goal = 0, _angular_goal = 0, _angular_end_goal = 0;
     
     public:
-        double radius;
-        double separation;
-        double max_wheel_vel;
-        double max_linear_vel;
-        double max_linear_acc;
-        double max_angular_vel;
-        double max_angular_acc;
+        //Geometry
+        double wheel_radius, wheel_separation;
+        //Probability
+        double linear_stddev_linear, angular_stddev_angular;
+        //Limits
+        double max_wheel_vel, max_linear_vel, max_linear_acc, max_angular_vel, max_angular_acc;
 
         Wheels(ros::NodeHandle *node, Omega *owner);
         void update(ros::Time now, const sensor_msgs::JointState::ConstPtr &msg);

@@ -55,17 +55,15 @@ namespace omega
         void _correct(ros::Time now, const std::vector<BallVision> &balls);
 
     public:
-        //Physical parameters
-        double radius;
+        //Geometry
+        double ball_radius;
+        //Probability
         double position_stddev_time, speed_stddev_time;
-
         //Image processing
-        int min_hue, max_hue, min_saturation, max_saturation, min_value, max_value;
-        int dilate_size;
-
-        //Detection
         double min_radius, min_area;
         double timeout;
+        int min_hue, max_hue, min_saturation, max_saturation, min_value, max_value;
+        int dilate_size;
 
         BallTracker(ros::NodeHandle *node, Omega *owner);
         void update(ros::Time now, const cv::Mat &bgr_image);

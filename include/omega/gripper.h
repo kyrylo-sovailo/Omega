@@ -28,8 +28,8 @@ namespace omega
         void _write_state(bool open);
     
     public:
-        double start_delay;
         double duration;
+        double start_delay;
 
         Gripper(ros::NodeHandle *node, Omega *omega);
         void update(ros::Time now, const turtlebot3_msgs::GraspState::ConstPtr &msg);

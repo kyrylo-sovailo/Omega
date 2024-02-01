@@ -115,7 +115,7 @@ void omega::BallTracker::_find_positions(std::vector<BallVision> *balls)
 {
     const double p1 = std::hypot(_owner->camera->matrix(0, 0), _owner->camera->matrix(0, 1));
     const double p2 = std::hypot(_owner->camera->matrix(1, 0), _owner->camera->matrix(1, 1));
-    const double p1p2r = std::sqrt(p1 * p2) * radius;
+    const double p1p2r = std::sqrt(p1 * p2) * ball_radius;
 
     for (auto ball = balls->begin(); ball != balls->end(); ball++)
     {    
@@ -221,9 +221,14 @@ void omega::BallTracker::_correct(ros::Time now, const std::vector<BallVision> &
 
 omega::BallTracker::BallTracker(ros::NodeHandle *node, Omega *owner) : _owner(owner)
 {
-    OMEGA_CONFIG("ball_tracker/radius", radius);
+    OMEGA_CONFIG("ball_tracker/ball_radius", ball_radius);
+
     OMEGA_CONFIG("ball_tracker/position_stddev_time", position_stddev_time);
     OMEGA_CONFIG("ball_tracker/speed_stddev_time", speed_stddev_time);
+
+    OMEGA_CONFIG("ball_tracker/min_radius", min_radius);
+    OMEGA_CONFIG("ball_tracker/min_area", min_area);
+    OMEGA_CONFIG("ball_tracker/timeout", timeout);
 
     OMEGA_CONFIG("ball_tracker/min_hue", min_hue);
     OMEGA_CONFIG("ball_tracker/max_hue", max_hue);
@@ -232,10 +237,6 @@ omega::BallTracker::BallTracker(ros::NodeHandle *node, Omega *owner) : _owner(ow
     OMEGA_CONFIG("ball_tracker/min_value", min_value);
     OMEGA_CONFIG("ball_tracker/max_value", max_value);
     OMEGA_CONFIG("ball_tracker/dilate_size", dilate_size);
-
-    OMEGA_CONFIG("ball_tracker/min_radius", min_radius);
-    OMEGA_CONFIG("ball_tracker/min_area", min_area);
-    OMEGA_CONFIG("ball_tracker/timeout", timeout);
 
     ROS_INFO("omega::BallTracker initialized");
 }

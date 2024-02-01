@@ -30,11 +30,15 @@ namespace omega
         void _write_pose(const Eigen::Vector4d &pose, double duration);
     
     public:
-        double start_delay;
+        //Geometry
         Eigen::Vector3d base_position;
+        Eigen::Vector4d l, q_init;
+        //Limits
+        Eigen::Vector4d q_min, q_max, w_max;
+        //Behavior
+        double start_delay;
         Eigen::Vector3d idle_position;
         double idle_pitch;
-        Eigen::Vector4d l, q_init, q_min, q_max, w_max;
 
         Arm(ros::NodeHandle *node, Omega *owner);
         void update(ros::Time now, const sensor_msgs::JointState::ConstPtr &msg);

@@ -17,8 +17,8 @@ void omega::Gripper::_write_state(bool open)
 omega::Gripper::Gripper(ros::NodeHandle *node, Omega *owner) : _owner(owner)
 {
     //Config
-    OMEGA_CONFIG("gripper/start_delay", start_delay);
     OMEGA_CONFIG("gripper/duration", duration);
+    OMEGA_CONFIG("gripper/start_delay", start_delay);
 
     //Technical
     _sub = node->subscribe("joints/gripper_grasp_controller/state", 1, &Omega::grasp_state_update, owner);

@@ -1,57 +1,75 @@
+# Behavior configuration
 config:
-  start_delay: 5.0
   distance_to_ball: 0.2
   distance_to_wall: 0.2
+  start_delay: 5.0
 
+# Timer configuration
 timer:
   frequency: 10 # [Hz]
 
+# Camera configuration
 camera:
+  # Geometry
   base_position: [ 0.164, 0, 0.033 ]  # [m, m, m]
+  # Image processing
   blur_strength: 3                    # [1]
   blur_size: 5                        # [pixel]
 
+# Arm configuration
 arm:
-  start_delay: 3.0
-  base_position: [ 0.136, 0, 0.0463 ] # [m, m, m]
-  idle_position: [ 0.4, 0.0, 0.1463 ] # [m, m, m]
+  # Geometry
+  base_position: [ 0.136, 0, 0.0463 ] # [m]
+  l: [ 0.0765, 0.1499, 0.15, 0.14 ]   # [m]
+  q_init: [ 0, 1.41, 0.1608, 0 ]      # [rad]
+  # Limits
+  q_min: [ -.inf, -.inf, -.inf, -.inf ] # [rad]
+  q_max: [ .inf, .inf, .inf, .inf ]     # [rad]
+  w_max: [ 1, 1, 1, 1 ]                 # [rad/s]
+  # Behavior
+  start_delay: 3.0                    # [s]
+  idle_position: [ 0.4, 0.0, 0.1463 ] # [m]
   idle_pitch: 0.1                     # [rad]
-  l: [ 0.0765, 0.1499, 0.15, 0.14 ]
-  q_init: [ 0, 1.41, 0.1608, 0 ]
-  q_min: [ -.inf, -.inf, -.inf, -.inf ]
-  q_max: [ .inf, .inf, .inf, .inf ]
-  w_max: [ 1, 1, 1, 1 ]
 
+# Gripper configuration
 gripper:
-  start_delay: 3.0
   duration: 3.0 # [s]
+  start_delay: 3.0
 
+# Wheels configuration
 wheels:
-  radius: 0.033         # [m]
-  separation: 0.160     # [m]
+  # Geometry
+  wheel_radius: 0.033     # [m]
+  wheel_separation: 0.160 # [m]
+  # Probability
+  linear_stddev_linear: 0.01    # [m/m]
+  angular_stddev_angular: 0.01  # [rad/rad]
+  # Limits
   max_wheel_vel: 5.0    # [rad/s]
   max_linear_vel: 0.1   # [m/s]
   max_linear_acc: 2.5   # [m/s2]
   max_angular_vel: 0.7  # [rad/s]
   max_angular_acc: 6.0  # [rad/s2]
 
+# Ball tracker configuration
 ball_tracker:
-  radius: 0.032               # [m]
+  # Geometry
+  ball_radius: 0.032               # [m]
+  # Probability
   position_stddev_time: 0.01  # [m/s]
   speed_stddev_time: 0.01     # [m/s^2]
-
-  # Further configuration
-  # in specialized configs
-  
+  # Image processing (extended in other configs)
   min_radius: 5       # [pixel]
   min_area: 0.6       # [1]
   timeout: 10         # [s]
 
+# Robot tracker configuration (extended in other configs)
 robot_tracker:
-  wall_height: 0.1              # [m]
-  initial_x: 0                  # [m]
-  initial_y: 0                  # [m]
-  initial_theta: 0              # [rad]
-  drive_distance_variance: 0.1  # [m/m]
-  drive_angle_variance: 0.05    # [1/m]
-  measure_variance: 0.1         # [m/m]
+  # Geometry (extended in other configs)
+  init_position: [ 0, 0 ]       # [m]
+  init_angle: 0                 # rad
+  # Probability
+  position_stddev_time: 0.01    # [m/s]
+  angle_stddev_time: 0.01       # [rad/s]
+  wall_angle_stddev: 0.1        # [m/m]
+  wall_position_stddev: 0.1     # [m/m]

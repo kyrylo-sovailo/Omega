@@ -19,10 +19,12 @@ namespace omega
         void _update(const sensor_msgs::CameraInfo::ConstPtr &msg);
         
     public:
+        //Geometry
         Eigen::Vector3d base_position;
+        //Image processing
         double blur_strength;
         int blur_size;
-
+        //Runtime parameters
         unsigned int width, height;
         Eigen::Matrix<double, 4, 4> matrix, matrix_inv;
 

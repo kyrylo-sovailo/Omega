@@ -29,15 +29,17 @@ void omega::Arm::_write_pose(const Eigen::Vector4d &pose, double duration)
 omega::Arm::Arm(ros::NodeHandle *node, Omega *owner) : _owner(owner)
 {
     //Config
-    OMEGA_CONFIG("arm/start_delay", start_delay);
     OMEGA_CONFIG_VECTOR("arm/base_position", 3, base_position);
-    OMEGA_CONFIG_VECTOR("arm/idle_position", 3, idle_position);
-    OMEGA_CONFIG("arm/idle_pitch", idle_pitch);
     OMEGA_CONFIG_VECTOR("arm/l", 4, l);
     OMEGA_CONFIG_VECTOR("arm/q_init", 4, q_init);
+
     OMEGA_CONFIG_VECTOR("arm/q_min", 4, q_min);
     OMEGA_CONFIG_VECTOR("arm/q_max", 4, q_max);
     OMEGA_CONFIG_VECTOR("arm/w_max", 4, w_max);
+    
+    OMEGA_CONFIG("arm/start_delay", start_delay);
+    OMEGA_CONFIG_VECTOR("arm/idle_position", 3, idle_position);
+    OMEGA_CONFIG("arm/idle_pitch", idle_pitch);
 
     //Technical
     _pub = node->advertise<trajectory_msgs::JointTrajectory>("joints/arm_trajectory_controller/command", 1, true);
