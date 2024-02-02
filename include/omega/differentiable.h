@@ -13,7 +13,7 @@ Written by Kyrylo Sovailo
 #include <Eigen/Core>
 
 //Core
-namespace bd
+namespace omega
 {
     //Predefine
     template<class T, unsigned int N> class Differentiable;
@@ -22,7 +22,11 @@ namespace bd
     template<class T, unsigned int N> constexpr inline Differentiable<T, N> operator+(const Differentiable<T, N> &a, const Differentiable<T, N> &b) { Differentiable<T, N> v; v.value = a.value + b.value; for (unsigned int i = 0; i < N; ++i) v.derivative[i] = a.derivative[i] + b.derivative[i]; return v; };
     template<class T, unsigned int N> constexpr inline Differentiable<T, N> operator-(const Differentiable<T, N> &a, const Differentiable<T, N> &b) { Differentiable<T, N> v; v.value = a.value - b.value; for (unsigned int i = 0; i < N; ++i) v.derivative[i] = a.derivative[i] - b.derivative[i]; return v; };
     template<class T, unsigned int N> constexpr inline Differentiable<T, N> operator*(const Differentiable<T, N> &a, const Differentiable<T, N> &b) { Differentiable<T, N> v; v.value = a.value * b.value; for (unsigned int i = 0; i < N; ++i) v.derivative[i] = a.value * b.derivative[i] + b.value * a.derivative[i]; return v; };
+    template<class T, unsigned int N> constexpr inline Differentiable<T, N> operator*(const Differentiable<T, N> &a, const T                    &b) { Differentiable<T, N> v; v.value = a.value * b      ; for (unsigned int i = 0; i < N; ++i) v.derivative[i] = b * a.derivative[i]; return v; };
+    template<class T, unsigned int N> constexpr inline Differentiable<T, N> operator*(const T                    &a, const Differentiable<T, N> &b) { Differentiable<T, N> v; v.value = a       * b.value; for (unsigned int i = 0; i < N; ++i) v.derivative[i] = a * b.derivative[i]; return v; };
     template<class T, unsigned int N> constexpr inline Differentiable<T, N> operator/(const Differentiable<T, N> &a, const Differentiable<T, N> &b) { Differentiable<T, N> v; v.value = a.value / b.value; for (unsigned int i = 0; i < N; ++i) v.derivative[i] = (a.derivative[i] * b.value - a.value * b.derivative[i]) / (b.value * b.value); return v; };
+    template<class T, unsigned int N> constexpr inline Differentiable<T, N> operator/(const Differentiable<T, N> &a, const T                    &b) { Differentiable<T, N> v; v.value = a.value / b      ; for (unsigned int i = 0; i < N; ++i) v.derivative[i] = (a.derivative[i] / b); return v; };
+    template<class T, unsigned int N> constexpr inline Differentiable<T, N> operator/(const T                    &a, const Differentiable<T, N> &b) { Differentiable<T, N> v; v.value = a       / b.value; for (unsigned int i = 0; i < N; ++i) v.derivative[i] = (-a.value * b.derivative[i]) / (b.value * b.value); return v; };
 
     ///Same as double, but with overloaded operators
     ///@tparam T Base type
@@ -95,26 +99,30 @@ namespace bd
     template<class T, unsigned int N> constexpr inline bool islessequal   (const Differentiable<T, N> &x, const Differentiable<T, N> &y) noexcept { return std::islessequal   (x.value, y.value); }
     template<class T, unsigned int N> constexpr inline bool islessgreater (const Differentiable<T, N> &x, const Differentiable<T, N> &y) noexcept { return std::islessgreater (x.value, y.value); }
     template<class T, unsigned int N> constexpr inline bool isunordered   (const Differentiable<T, N> &x, const Differentiable<T, N> &y) noexcept { return std::isunordered   (x.value, y.value); }
+
+    //Defines
+    typedef Differentiable<double, 1> ddouble;
+    typedef Differentiable<double, 3> ddouble3;
 }
 
 //STL integration
 namespace std
 {
-    template<class C, class T, unsigned int N> basic_ostream<C> &operator<<(basic_ostream<C> &os, const bd::Differentiable<T, N> &x)
+    template<class C, class T, unsigned int N> basic_ostream<C> &operator<<(basic_ostream<C> &os, const omega::Differentiable<T, N> &x)
     {
         os << x.value;
         for (unsigned int i = 0; i < N; i++) { os << ' ' << x.derivative[i]; }
         return os;
     }
 
-    template<class C, class T, unsigned int N> basic_istream<C> &operator>>(basic_istream<C> &is, const bd::Differentiable<T, N> &x)
+    template<class C, class T, unsigned int N> basic_istream<C> &operator>>(basic_istream<C> &is, const omega::Differentiable<T, N> &x)
     {
         is >> x.value;
         for (unsigned int i = 0; i < N; i++) { is >> ' ' >> x.derivative[i]; }
         return is;
     }
 
-    template<class T, unsigned int N> std::string to_string(const bd::Differentiable<T, N> &x)
+    template<class T, unsigned int N> std::string to_string(const omega::Differentiable<T, N> &x)
     {
         std::stringstream str;
         str << x.value;
@@ -122,7 +130,7 @@ namespace std
         return str.str();
     }
 
-    template<class T, unsigned int N> std::wstring to_wstring(const bd::Differentiable<T, N> &x)
+    template<class T, unsigned int N> std::wstring to_wstring(const omega::Differentiable<T, N> &x)
     {
         std::wstringstream str;
         str << x.value;
@@ -132,12 +140,12 @@ namespace std
 };
 
 //Eigen integration
-template<class T, unsigned int N> struct Eigen::NumTraits<bd::Differentiable<T, N>>
+template<class T, unsigned int N> struct Eigen::NumTraits<omega::Differentiable<T, N>>
 {
-    typedef bd::Differentiable<T, N> Real;
-    typedef bd::Differentiable<T, N> NonInteger;
-    typedef bd::Differentiable<T, N> Literal;
-    typedef bd::Differentiable<T, N> Nested;
+    typedef omega::Differentiable<T, N> Real;
+    typedef omega::Differentiable<T, N> NonInteger;
+    typedef omega::Differentiable<T, N> Literal;
+    typedef omega::Differentiable<T, N> Nested;
 
     enum
     {
@@ -150,21 +158,14 @@ template<class T, unsigned int N> struct Eigen::NumTraits<bd::Differentiable<T, 
         RequireInitialization = 0
     };
 
-    static constexpr inline bd::Differentiable<T, N> epsilon        () noexcept { return (bd::Differentiable<T, N>)std::numeric_limits<T>::epsilon(); }
-    static constexpr inline bd::Differentiable<T, N> dummy_precision() noexcept { return (bd::Differentiable<T, N>)std::numeric_limits<T>::epsilon(); }
-    static constexpr inline bd::Differentiable<T, N> highest        () noexcept { return (bd::Differentiable<T, N>)std::numeric_limits<T>::infinity(); }
-    static constexpr inline bd::Differentiable<T, N> lowest         () noexcept { return (bd::Differentiable<T, N>)-std::numeric_limits<T>::infinity(); }
+    static constexpr inline omega::Differentiable<T, N> epsilon        () noexcept { return (omega::Differentiable<T, N>)std::numeric_limits<T>::epsilon(); }
+    static constexpr inline omega::Differentiable<T, N> dummy_precision() noexcept { return (omega::Differentiable<T, N>)std::numeric_limits<T>::epsilon(); }
+    static constexpr inline omega::Differentiable<T, N> highest        () noexcept { return (omega::Differentiable<T, N>)std::numeric_limits<T>::infinity(); }
+    static constexpr inline omega::Differentiable<T, N> lowest         () noexcept { return (omega::Differentiable<T, N>)-std::numeric_limits<T>::infinity(); }
     static constexpr inline int                      digits         () noexcept { return std::numeric_limits<T>::digits; }
     static constexpr inline int                      digits10       () noexcept { return std::numeric_limits<T>::digits10; }
     static constexpr inline int                      min_exponent   () noexcept { return std::numeric_limits<T>::min_exponent; }
     static constexpr inline int                      max_exponent   () noexcept { return std::numeric_limits<T>::max_exponent; }
-    static constexpr inline bd::Differentiable<T, N> infinity       () noexcept { return (bd::Differentiable<T, N>)std::numeric_limits<T>::infinity(); }
-    static constexpr inline bd::Differentiable<T, N> quiet_NaN      () noexcept { return (bd::Differentiable<T, N>)std::numeric_limits<T>::quiet_NaN(); }
-};
-
-//Omega integration
-namespace omega
-{
-    typedef bd::Differentiable<double, 1> ddouble;
-    typedef bd::Differentiable<double, 3> ddouble3;
+    static constexpr inline omega::Differentiable<T, N> infinity       () noexcept { return (omega::Differentiable<T, N>)std::numeric_limits<T>::infinity(); }
+    static constexpr inline omega::Differentiable<T, N> quiet_NaN      () noexcept { return (omega::Differentiable<T, N>)std::numeric_limits<T>::quiet_NaN(); }
 };

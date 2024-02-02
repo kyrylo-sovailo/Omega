@@ -7,9 +7,9 @@
   <arg name="ground_truth" default="False" />
   <arg name="debug" default="True" />
 
-  <!-- load robot config config -->
   <group ns="$(arg robot_name)">
-    <rosparam file="$(find omega)/config/config_robot.yaml" command="load" />
+    <!-- load config -->
+    <rosparam file="$(find omega)/config/config.yaml" command="load" />
   </group>
 
   <!-- start core -->

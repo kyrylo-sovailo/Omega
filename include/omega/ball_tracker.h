@@ -62,6 +62,7 @@ namespace omega
         //Image processing
         double min_radius, min_area;
         double timeout;
+        double match_max_distance;
         int min_hue, max_hue, min_saturation, max_saturation, min_value, max_value;
         int dilate_size;
 

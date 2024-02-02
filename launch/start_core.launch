@@ -6,12 +6,10 @@
   <arg name="robot_name" default="omega" />
   <arg name="ground_truth" default="False" />
   <arg name="debug" default="True" />
-
+  
   <group ns="$(arg robot_name)">
-    <!-- load config -->
+    <!-- define debug config -->
     <param name="debugger/active" type="bool" value="$(arg debug)" />
-    <rosparam file="$(find omega)/config/config.yaml" command="load" />
-
     <!-- start omega node -->
     <node name="omega_node" pkg="omega" type="omega" output="screen" respawn="true" />
   </group>

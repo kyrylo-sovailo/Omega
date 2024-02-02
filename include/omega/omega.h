@@ -53,4 +53,5 @@ namespace omega
 }
 
 #define OMEGA_CONFIG(s, v) if (!node->getParam(s, v)) { const char *error = "Failed to get parameter " s; ROS_ERROR("%s", error); throw std::runtime_error(error); }
+#define OMEGA_CONFIG_DEGREE(s, v) if (!node->getParam(s, v)) { const char *error = "Failed to get parameter " s; ROS_ERROR("%s", error); throw std::runtime_error(error); } else { v = M_PI * v / 180; }
 #define OMEGA_CONFIG_VECTOR(s, n, v) { std::vector<double> b; if (node->getParam(s, b) && b.size() == n) v = Eigen::Matrix<double, n, 1>::Map(b.data()); else { const char *error = "Failed to get parameter " s; ROS_ERROR("%s", error); throw std::runtime_error(error); } }

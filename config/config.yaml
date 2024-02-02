@@ -54,22 +54,42 @@ wheels:
 # Ball tracker configuration
 ball_tracker:
   # Geometry
-  ball_radius: 0.032               # [m]
+  ball_radius: 0.032          # [m]
   # Probability
   position_stddev_time: 0.01  # [m/s]
   speed_stddev_time: 0.01     # [m/s^2]
-  # Image processing (extended in other configs)
-  min_radius: 5       # [pixel]
-  min_area: 0.6       # [1]
-  timeout: 10         # [s]
+  # Image processing
+  min_radius: 5           # [pixel]
+  min_area: 0.6           # [1]
+  timeout: 10             # [s]
+  match_max_distance: 0.1 # [m]
+  min_hue: 6              # [color]
+  max_hue: 50             # [color]
+  min_saturation: 80      # [color]
+  max_saturation: 255     # [color]
+  min_value: 110          # [color]
+  max_value: 255          # [color]
+  dilate_size: 5          # [pix]
 
-# Robot tracker configuration (extended in other configs)
+# Robot tracker configuration
 robot_tracker:
-  # Geometry (extended in other configs)
+  # Geometry
   init_position: [ 0, 0 ]       # [m]
-  init_angle: 0                 # rad
+  init_angle: 0                 # [deg]
+  arena: "arena2024"
   # Probability
   position_stddev_time: 0.01    # [m/s]
-  angle_stddev_time: 0.01       # [rad/s]
+  angle_stddev_time: 0.01       # [deg/s]
   wall_angle_stddev: 0.1        # [m/m]
   wall_position_stddev: 0.1     # [m/m]
+  # Image processing
+  canny_threshold1: 50          # [gray]
+  canny_threshold2: 200         # [gray]
+  canny_aperture: 3             # [pixel]
+  hough_distance_resolution: 1  # [pixel]
+  hough_angle_resolution: 1     # [deg]
+  hough_threshold: 150          # [gray]
+  horizontal_max_angle: 10      # [deg]
+  vertical_max_angle: 30        # [deg]
+  match_max_a: 20               # [pixel]
+  match_max_b: 10               # [deg]

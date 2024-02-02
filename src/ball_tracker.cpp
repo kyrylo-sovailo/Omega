@@ -95,7 +95,7 @@ void omega::BallTracker::_find_circles(const std::vector<std::vector<cv::Point>>
         }
         ball.image_radius /= contour->size();
         if (ball.image_radius < min_radius) continue;
-        _owner->debugger->draw_circle(cv::Point((int)ball.image_center.x(), (int)ball.image_center.y()), (int)ball.image_radius, Debugger::blue);
+        _owner->debugger->draw_circle(ball.image_center, ball.image_radius, Debugger::red);
 
         //Calculare variance
         ball.image_radius_variance = 0;
@@ -166,17 +166,17 @@ void omega::BallTracker::_match(ros::Time now, std::vector<BallVision> *balls)
         if (ball->match != nullptr) continue;
         
         //Search for nearest database ball
-        double min_distance = std::numeric_limits<double>::quiet_NaN();
+        double min_distance = std::numeric_limits<double>::infinity();
         unsigned int min_distance_ball;
         for (unsigned int i = 0; i < _balls.size(); i++)
         {
             if (database_ball_matches[i]) continue;
 
             const double distance = (ball->local_position - _balls[i].get_position()).norm();
-            if (distance < 0.1 && distance < min_distance) { min_distance = distance; min_distance_ball = i; }
+            if (distance < match_max_distance && distance < min_distance) { min_distance = distance; min_distance_ball = i; }
         }
         
-        if (min_distance == min_distance)
+        if (!std::isinf(min_distance))
         {
             //If found
             database_ball_matches[min_distance_ball] = true;
@@ -249,7 +249,7 @@ void omega::BallTracker::update(ros::Time now, const cv::Mat &bgr_image)
     std::vector<BallVision> balls;
     _find_circles(contours, &balls);
 
-    _find_positions(&balls);
+    //_find_positions(&balls);
     //_match(now, &balls);
     //_update(now, balls);
 }

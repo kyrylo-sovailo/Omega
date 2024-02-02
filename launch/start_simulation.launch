@@ -8,8 +8,11 @@
   <arg name="world_name" default="$(find tuda_turtlebot3_gazebo)/worlds/empty.world" />
   <arg name="debug" default="True" />
   
-  <!-- load simulation config config -->
+  
   <group ns="$(arg robot_name)">
+    <!-- load config -->
+    <rosparam file="$(find omega)/config/config.yaml" command="load" />
+    <!-- load simulation specific config -->
     <rosparam file="$(find omega)/config/config_simulation.yaml" command="load" />
   </group>
 

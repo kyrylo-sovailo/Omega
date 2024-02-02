@@ -19,7 +19,7 @@ omega::Omega::Omega(ros::NodeHandle *node)
     //Technical
     _joint_state_sub = node->subscribe("joints/joint_states", 1, &Omega::joint_state_update, this);
     config = new Config(node);
-    debugger = new Debugger(node);
+    debugger = new Debugger(node, this);
     timer = new Timer(node, this);
     camera = new Camera(node, this);
     arm = new Arm(node, this);
