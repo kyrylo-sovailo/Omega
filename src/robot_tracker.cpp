@@ -52,14 +52,15 @@ void omega::RobotTracker::_get_vertical_line_expectation(const Eigen::Matrix<ddo
 void omega::RobotTracker::_get_lines(const cv::Mat &bgr_image, std::vector<VisionLine> *lines) const
 {
     //Image processing
-    cv::Mat gray_image;
-    cv::cvtColor(bgr_image, gray_image, cv::COLOR_BGR2GRAY);
-    cv::Canny(gray_image, gray_image, canny_threshold1, canny_threshold2, canny_aperture);
+    cv::Mat binary_image;
+    cv::cvtColor(bgr_image, binary_image, cv::COLOR_BGR2GRAY);
+    cv::Canny(binary_image, binary_image, canny_threshold1, canny_threshold2, canny_aperture);
+    _owner->debugger->draw_mask(binary_image);
 
     //Find horizontal lines
     std::vector<cv::Vec2f> hough_lines1;
-    cv::Mat gray_copy = gray_image.clone();
-    cv::HoughLines(gray_copy, hough_lines1, hough_distance_resolution, hough_angle_resolution, hough_threshold, 0, 0,
+    cv::Mat binary_copy = binary_image.clone();
+    cv::HoughLines(binary_copy, hough_lines1, hough_distance_resolution, hough_angle_resolution, hough_threshold, 0, 0,
         M_PI / 2 - horizontal_max_angle, M_PI / 2 + horizontal_max_angle);
     for (unsigned int i = 0; i < hough_lines1.size(); i++)
     {
@@ -75,13 +76,13 @@ void omega::RobotTracker::_get_lines(const cv::Mat &bgr_image, std::vector<Visio
     
     //Find vertical lines
     hough_lines1.resize(0);
-    gray_copy = gray_image.clone();
-    cv::HoughLines(gray_copy, hough_lines1, hough_distance_resolution, hough_angle_resolution, hough_threshold, 0, 0,
+    binary_copy = binary_image.clone();
+    cv::HoughLines(binary_copy, hough_lines1, hough_distance_resolution, hough_angle_resolution, hough_threshold, 0, 0,
         0, vertical_max_angle);
     
     std::vector<cv::Vec2f> hough_lines2;
-    gray_copy = gray_image.clone();
-    cv::HoughLines(gray_copy, hough_lines2, hough_distance_resolution, hough_angle_resolution, hough_threshold, 0, 0,
+    binary_copy = binary_image.clone();
+    cv::HoughLines(binary_copy, hough_lines2, hough_distance_resolution, hough_angle_resolution, hough_threshold, 0, 0,
         M_PI - vertical_max_angle, M_PI);
 
     hough_lines1.insert(hough_lines1.end(), hough_lines2.cbegin(), hough_lines2.cend());

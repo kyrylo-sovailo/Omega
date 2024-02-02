@@ -45,9 +45,9 @@ omega::Arm::Arm(ros::NodeHandle *node, Omega *owner) : _owner(owner)
     _pub = node->advertise<trajectory_msgs::JointTrajectory>("joints/arm_trajectory_controller/command", 1, true);
 
     //State
-    boost::shared_ptr<const sensor_msgs::JointState> msg = ros::topic::waitForMessage<sensor_msgs::JointState>("joints/joint_states", ros::Duration(5.0));
-    if (msg == nullptr) { const char *error = "Failed to receive robot state"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
-    _read_pose(msg);
+    //boost::shared_ptr<const sensor_msgs::JointState> msg = ros::topic::waitForMessage<sensor_msgs::JointState>("joints/joint_states", ros::Duration(5.0));
+    //if (msg == nullptr) { const char *error = "Failed to receive robot state"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
+    //_read_pose(msg);
 
     ROS_INFO("omega::Arm initialized");
 }

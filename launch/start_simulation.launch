@@ -3,7 +3,7 @@
 <!-- Launch manually! -->
 
 <launch>
-  <arg name="robot_name" default="omega" />
+  <arg name="robot_name" default="turtlebot3" />
   <arg name="ground_truth" default="False" />
   <arg name="world_name" default="$(find tuda_turtlebot3_gazebo)/worlds/empty.world" />
   <arg name="debug" default="True" />

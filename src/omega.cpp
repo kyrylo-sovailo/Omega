@@ -31,7 +31,7 @@ omega::Omega::Omega(ros::NodeHandle *node)
 
     _torque_enable_pub = node->advertise<std_msgs::Bool>("joints/torque_enable", 1, true);
     std_msgs::Bool torque_enable_command;
-    torque_enable_command.data = true;
+    torque_enable_command.data = false;
     _torque_enable_pub.publish(torque_enable_command);
 
     ROS_INFO("Omega initialization finished");

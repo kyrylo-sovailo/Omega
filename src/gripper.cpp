@@ -25,9 +25,9 @@ omega::Gripper::Gripper(ros::NodeHandle *node, Omega *owner) : _owner(owner)
     _pub = node->advertise<turtlebot3_msgs::GraspState>("joints/gripper_grasp_controller/command", 1, true);
 
     //State
-    boost::shared_ptr<const turtlebot3_msgs::GraspState> msg = ros::topic::waitForMessage<turtlebot3_msgs::GraspState>("joints/gripper_grasp_controller/state", ros::Duration(5.0));
-    if (msg == nullptr) { const char *error = "Failed to receive gripper state"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
-    _read_state(msg);
+    //boost::shared_ptr<const turtlebot3_msgs::GraspState> msg = ros::topic::waitForMessage<turtlebot3_msgs::GraspState>("joints/gripper_grasp_controller/state", ros::Duration(5.0));
+    //if (msg == nullptr) { const char *error = "Failed to receive gripper state"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
+    //_read_state(msg);
 
     ROS_INFO("omega::Gripper initialized");
 }

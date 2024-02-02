@@ -67,7 +67,7 @@ ball_tracker:
   max_hue: 50             # [color]
   min_saturation: 80      # [color]
   max_saturation: 255     # [color]
-  min_value: 110          # [color]
+  min_value: 50           # [color]
   max_value: 255          # [color]
   dilate_size: 5          # [pix]
 
@@ -84,11 +84,11 @@ robot_tracker:
   wall_position_stddev: 0.1     # [m/m]
   # Image processing
   canny_threshold1: 50          # [gray]
-  canny_threshold2: 200         # [gray]
+  canny_threshold2: 90          # [gray]
   canny_aperture: 3             # [pixel]
   hough_distance_resolution: 1  # [pixel]
   hough_angle_resolution: 1     # [deg]
-  hough_threshold: 150          # [gray]
+  hough_threshold: 100          # [gray]
   horizontal_max_angle: 10      # [deg]
   vertical_max_angle: 30        # [deg]
   match_max_a: 20               # [pixel]

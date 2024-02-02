@@ -23,10 +23,10 @@ omega::Wheels::Wheels(ros::NodeHandle *node, Omega *owner) : _owner(owner)
     _right_pub = node->advertise<std_msgs::Float64>("joints/wheel_right_controller/command", 1, true);
 
     //State
-    boost::shared_ptr<const sensor_msgs::JointState> msg = ros::topic::waitForMessage<sensor_msgs::JointState>("joints/joint_states", ros::Duration(5.0));
-    if (msg == nullptr) { const char *error = "Failed to receive robot state"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
-    update(ros::Time::now(), msg);
-    update(ros::Time::now());
+    //boost::shared_ptr<const sensor_msgs::JointState> msg = ros::topic::waitForMessage<sensor_msgs::JointState>("joints/joint_states", ros::Duration(5.0));
+    //if (msg == nullptr) { const char *error = "Failed to receive robot state"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
+    //update(ros::Time::now(), msg);
+    //update(ros::Time::now());
 
     ROS_INFO("omega::Wheels initialized");
 }

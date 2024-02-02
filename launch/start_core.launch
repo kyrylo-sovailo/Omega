@@ -3,7 +3,7 @@
 <!-- Do not launch manually! -->
 
 <launch>
-  <arg name="robot_name" default="omega" />
+  <arg name="robot_name" default="turtlebot3" />
   <arg name="ground_truth" default="False" />
   <arg name="debug" default="True" />
   
