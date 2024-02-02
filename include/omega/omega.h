@@ -21,6 +21,7 @@ namespace omega
     {
     private:
         ros::Subscriber _joint_state_sub;
+        ros::Publisher _torque_enable_pub;
     
     public:
         enum class State

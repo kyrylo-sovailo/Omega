@@ -8,6 +8,7 @@
 #include <omega/robot_tracker.h>
 #include <omega/timer.h>
 #include <omega/wheels.h>
+#include <std_msgs/Bool.h>
 
 omega::Omega::Omega(ros::NodeHandle *node)
 {
@@ -27,6 +28,11 @@ omega::Omega::Omega(ros::NodeHandle *node)
     wheels = new Wheels(node, this);
     ball_tracker = new BallTracker(node, this);
     robot_tracker = new RobotTracker(node, this);
+
+    _torque_enable_pub = node->advertise<std_msgs::Bool>("joints/torque_enable", 1, true);
+    std_msgs::Bool torque_enable_command;
+    torque_enable_command.data = true;
+    _torque_enable_pub.publish(torque_enable_command);
 
     ROS_INFO("Omega initialization finished");
 }
