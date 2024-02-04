@@ -13,8 +13,8 @@ camera:
   # Geometry
   base_position: [ 0.164, 0, 0.033 ]  # [m, m, m]
   # Image processing
-  blur_strength: 3                    # [1]
-  blur_size: 5                        # [pixel]
+  blur_strength: 3                  # [1]
+  blur_size: 5                       # [pixel]
 
 # Arm configuration
 arm:
@@ -83,12 +83,12 @@ robot_tracker:
   wall_angle_stddev: 0.1        # [m/m]
   wall_position_stddev: 0.1     # [m/m]
   # Image processing
-  canny_threshold1: 50          # [gray]
-  canny_threshold2: 90          # [gray]
+  canny_threshold1: 15          # [gray]
+  canny_threshold2: 30          # [gray]
   canny_aperture: 3             # [pixel]
   hough_distance_resolution: 1  # [pixel]
   hough_angle_resolution: 1     # [deg]
-  hough_threshold: 100          # [gray]
+  hough_threshold: 150          # [gray]
   horizontal_max_angle: 10      # [deg]
   vertical_max_angle: 30        # [deg]
   match_max_a: 20               # [pixel]
