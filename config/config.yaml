@@ -13,8 +13,8 @@ camera:
   # Geometry
   base_position: [ 0.164, 0, 0.033 ]  # [m, m, m]
   # Image processing
-  blur_strength: 3                  # [1]
-  blur_size: 5                       # [pixel]
+  blur_strength: 2  # [1]
+  blur_size: 5      # [pixel]
 
 # Arm configuration
 arm:
@@ -54,42 +54,47 @@ wheels:
 # Ball tracker configuration
 ball_tracker:
   # Geometry
-  ball_radius: 0.032          # [m]
+  ball_radius: 0.032  # [m]
   # Probability
   position_stddev_time: 0.01  # [m/s]
   speed_stddev_time: 0.01     # [m/s^2]
   # Image processing
-  min_radius: 5           # [pixel]
-  min_area: 0.6           # [1]
-  timeout: 10             # [s]
-  match_max_distance: 0.1 # [m]
-  min_hue: 6              # [color]
-  max_hue: 50             # [color]
-  min_saturation: 80      # [color]
-  max_saturation: 255     # [color]
-  min_value: 50           # [color]
-  max_value: 255          # [color]
-  dilate_size: 5          # [pix]
+  min_radius: 5                 # [pixel]
+  min_area: 0.6                 # [1]
+  ball_color_min: [24,90,62]    # [hsv]
+  ball_color_max: [42,240,227]  # [hsv]
+  dilate_size: 10               # [pix]
+  # Tracking
+  timeout: 10                   # [s]
+  match_max_distance: 0.2       # [m]
 
 # Robot tracker configuration
 robot_tracker:
   # Geometry
-  init_position: [ 0, 0 ]       # [m]
-  init_angle: 0                 # [deg]
-  arena: "arena2024"
+  init_position: [ 0, 0 ] # [m]
+  init_angle: 0           # [deg]
+  arena: "arena2024"      # [string]
   # Probability
-  position_stddev_time: 0.01    # [m/s]
-  angle_stddev_time: 0.01       # [deg/s]
-  wall_angle_stddev: 0.1        # [m/m]
-  wall_position_stddev: 0.1     # [m/m]
+  position_stddev_time: 0.01  # [m/s]
+  angle_stddev_time: 0.01     # [deg/s]
+  wall_angle_stddev: 0.1      # [m/m]
+  wall_position_stddev: 0.1   # [m/m]
   # Image processing
-  canny_threshold1: 15          # [gray]
-  canny_threshold2: 30          # [gray]
-  canny_aperture: 3             # [pixel]
-  hough_distance_resolution: 1  # [pixel]
-  hough_angle_resolution: 1     # [deg]
-  hough_threshold: 150          # [gray]
-  horizontal_max_angle: 10      # [deg]
-  vertical_max_angle: 30        # [deg]
-  match_max_a: 20               # [pixel]
-  match_max_b: 10               # [deg]
+  wall_color_min: [21,7,56]       # [hsv]
+  wall_color_max: [107,69,200]    # [hsv]
+  grass_color_min: [59,95,75]     # [hsv]
+  grass_color_max: [76,146,140]   # [hsv]
+  dilate_size: 3                  # [pix]
+  canny_threshold1: 15            # [gray]
+  canny_threshold2: 30            # [gray]
+  canny_aperture: 3               # [pixel]
+  hough_distance_resolution: 1    # [pixel]
+  hough_angle_resolution: 1       # [deg]
+  hough_threshold: 150            # [gray]
+  horizontal_max_angle: 45        # [deg]
+  vertical_max_angle: 10          # [deg]
+  horizontal_max_lines: 45        # [1]
+  vertical_max_lines: 10          # [1]
+  # Tracking
+  match_max_a: 20 # [pixel]
+  match_max_b: 10 # [deg]

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, math
+import os
 import yaml
 import numpy as np
 import cv2 as cv
@@ -11,24 +11,27 @@ class Camera:
 
 class BallTracker:
     def __init__(self, config):
-        self.min_hue = config['min_hue']
-        self.max_hue = config['max_hue']
-        self.min_saturation = config['min_saturation']
-        self.max_saturation = config['max_saturation']
-        self.min_value = config['min_value']
-        self.max_value = config['max_value']
+        self.ball_color_min = (config['ball_color_min'][0], config['ball_color_min'][1], config['ball_color_min'][2])
+        self.ball_color_max = (config['ball_color_max'][0], config['ball_color_max'][1], config['ball_color_max'][2])
         self.dilate_size = config['dilate_size']
 
 class RobotTracker:
     def __init__(self, config):
+        self.wall_color_min = (config['wall_color_min'][0], config['wall_color_min'][1], config['wall_color_min'][2])
+        self.wall_color_max = (config['wall_color_max'][0], config['wall_color_max'][1], config['wall_color_max'][2])
+        self.grass_color_min = (config['grass_color_min'][0], config['grass_color_min'][1], config['grass_color_min'][2])
+        self.grass_color_max = (config['grass_color_max'][0], config['grass_color_max'][1], config['grass_color_max'][2])
+        self.dilate_size = config['dilate_size']
         self.canny_threshold1 = config['canny_threshold1']
         self.canny_threshold2 = config['canny_threshold2']
         self.canny_aperture = config['canny_aperture']
         self.hough_distance_resolution = config['hough_distance_resolution']
-        self.hough_angle_resolution = math.pi * config['hough_angle_resolution'] / 180
+        self.hough_angle_resolution = np.pi * config['hough_angle_resolution'] / 180
         self.hough_threshold = config['hough_threshold']
-        self.horizontal_max_angle = math.pi * config['horizontal_max_angle'] / 180
-        self.vertical_max_angle = math.pi * config['vertical_max_angle'] / 180
+        self.horizontal_max_angle = np.pi * config['horizontal_max_angle'] / 180
+        self.vertical_max_angle = np.pi * config['vertical_max_angle'] / 180
+        self.horizontal_max_lines = config['horizontal_max_lines']
+        self.vertical_max_lines = config['vertical_max_lines']
 
 class Config:
     def __init__(self, filename):
@@ -38,67 +41,49 @@ class Config:
         self.ball = BallTracker(config['ball_tracker'])
         self.robot = RobotTracker(config['robot_tracker'])
 
-def bitwise_or_multichannel(buffer, binary_image):
+def draw_mask(buffer, binary_image, bgr_color = (255, 255, 255)):
     buffer_b, buffer_g, buffer_r = cv.split(buffer)
-    buffer_b = cv.bitwise_or(buffer_b, binary_image)
-    buffer_g = cv.bitwise_or(buffer_g, binary_image)
-    buffer_r = cv.bitwise_or(buffer_r, binary_image)
+    if bgr_color[0] > 0: buffer_b = cv.bitwise_or(buffer_b, binary_image)
+    else: buffer_b = cv.bitwise_and(buffer_b, cv.bitwise_not(binary_image))
+    if bgr_color[1] > 0: buffer_g = cv.bitwise_or(buffer_g, binary_image)
+    else: buffer_g = cv.bitwise_and(buffer_g, cv.bitwise_not(binary_image))
+    if bgr_color[2] > 0: buffer_r = cv.bitwise_or(buffer_r, binary_image)
+    else: buffer_r = cv.bitwise_and(buffer_r, cv.bitwise_not(binary_image))
     return cv.merge((buffer_b, buffer_g, buffer_r))
 
-def bitwise_nand_multichannel(buffer, binary_image):
-    binary_image = cv.bitwise_not(binary_image)
-    buffer_b, buffer_g, buffer_r = cv.split(buffer)
-    buffer_b = cv.bitwise_and(buffer_b, binary_image)
-    buffer_g = cv.bitwise_and(buffer_g, binary_image)
-    buffer_r = cv.bitwise_and(buffer_r, binary_image)
-    return cv.merge((buffer_b, buffer_g, buffer_r))
-
-def test(c, filename, canny_space):
+def test_simple(c, filename):
     # Load
     image = cv.imread(filename)
 
     # Preprocess
     blurred_image = cv.GaussianBlur(image, (c.camera.blur_size, c.camera.blur_size), c.camera.blur_strength)
     buffer = blurred_image.copy()
-    if canny_space == "mono":
-        gray_image = cv.cvtColor(blurred_image, cv.COLOR_BGR2GRAY)
-        binary_image = cv.Canny(gray_image, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-    elif canny_space == "bgr":
-        image_b, image_g, image_r = cv.split(blurred_image)
-        image_b = cv.Canny(image_b, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        image_g = cv.Canny(image_g, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        image_r = cv.Canny(image_r, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        binary_image = cv.bitwise_or(image_b, cv.bitwise_or(image_g, image_r))
-    elif canny_space == "hsv":
-        hsv_image = cv.cvtColor(blurred_image, cv.COLOR_BGR2HSV)
-        image_h, image_s, image_v = cv.split(hsv_image)
-        image_h = cv.Canny(image_h, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        image_s = cv.Canny(image_s, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        image_v = cv.Canny(image_v, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        binary_image = np.zeros((hsv_image.shape[0], hsv_image.shape[1]), dtype=np.uint8)
-        #binary_image = cv.bitwise_or(binary_image, image_h)
-        #binary_image = cv.bitwise_or(binary_image, image_s)
-        binary_image = cv.bitwise_or(binary_image, image_v)
-    else: raise Exception("Invalid canny_space")
-    
-    buffer = bitwise_or_multichannel(buffer, binary_image)
+    hsv_image = cv.cvtColor(blurred_image, cv.COLOR_BGR2HSV)
+    image_h, image_s, image_v = cv.split(hsv_image)
+    image_h = cv.Canny(image_h, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
+    image_s = cv.Canny(image_s, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
+    image_v = cv.Canny(image_v, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
+    edge_image = np.zeros((hsv_image.shape[0], hsv_image.shape[1]), dtype=np.uint8)
+    #edge_image = cv.bitwise_or(edge_image, image_h)
+    #edge_image = cv.bitwise_or(edge_image, image_s)
+    edge_image = cv.bitwise_or(edge_image, image_v)
     
     # Hough
     lines = np.zeros((0, 1, 2))
-    lines1 = cv.HoughLines(binary_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
+    lines1 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
         None, 0, 0, 0, c.robot.vertical_max_angle)
     if not lines1 is None: lines = np.concatenate((lines, lines1), axis=0)
-    lines2 = cv.HoughLines(binary_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
-        None, 0, 0, math.pi - c.robot.vertical_max_angle, math.pi)
+    lines2 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
+        None, 0, 0, np.pi - c.robot.vertical_max_angle, np.pi)
     if not lines2 is None: lines = np.concatenate((lines, lines2), axis=0)
-    lines3 = cv.HoughLines(binary_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
-        None, 0, 0, math.pi / 2 - c.robot.horizontal_max_angle, math.pi / 2 + c.robot.horizontal_max_angle)
+    lines3 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
+        None, 0, 0, np.pi / 2 - c.robot.horizontal_max_angle, np.pi / 2 + c.robot.horizontal_max_angle)
     if not lines3 is None: lines = np.concatenate((lines, lines3), axis=0)
     for line in lines:
         rho = line[0][0]
         theta = line[0][1]
-        a = math.cos(theta)
-        b = math.sin(theta)
+        a = np.cos(theta)
+        b = np.sin(theta)
         x0 = a * rho
         y0 = b * rho
         span = 2000
@@ -108,7 +93,7 @@ def test(c, filename, canny_space):
 
     return buffer
 
-def test2(c, filename, canny_space):
+def test(c, filename):
     # Load
     image = cv.imread(filename)
 
@@ -118,60 +103,45 @@ def test2(c, filename, canny_space):
 
     # Color recognition
     hsv_image = cv.cvtColor(blurred_image, cv.COLOR_BGR2HSV)
-    ball_lower = (24, 105, 72)
-    ball_upper = (39, 237, 226)
-    wall_lower = (21, 7, 56)
-    wall_upper = (107, 69, 200)
-    grass_lower = (59, 95, 75)
-    grass_upper = (76, 146, 140)
-    wall_binary_image = cv.inRange(hsv_image, wall_lower, wall_upper)
-    grass_binary_image = cv.inRange(hsv_image, grass_lower, grass_upper)
+    wall_binary_image = cv.inRange(hsv_image, c.robot.wall_color_min, c.robot.wall_color_max)
+    grass_binary_image = cv.inRange(hsv_image, c.robot.grass_color_min, c.robot.grass_color_max)
     wall_grass_binary_image = cv.bitwise_or(wall_binary_image, grass_binary_image)
-    wall_grass_binary_image = cv.dilate(wall_grass_binary_image, cv.getStructuringElement(cv.MORPH_RECT, (15, 15)))
+    wall_grass_binary_image = cv.dilate(wall_grass_binary_image, cv.getStructuringElement(cv.MORPH_RECT, (c.robot.dilate_size, c.robot.dilate_size)))
+    buffer = draw_mask(buffer, wall_grass_binary_image)
+
+    ball_binary_image = cv.inRange(hsv_image, c.ball.ball_color_min, c.ball.ball_color_max)
+    ball_binary_image = cv.dilate(ball_binary_image, cv.getStructuringElement(cv.MORPH_RECT, (c.ball.dilate_size, c.ball.dilate_size)))
+    ball_binary_image = cv.erode(ball_binary_image, cv.getStructuringElement(cv.MORPH_RECT, (c.ball.dilate_size, c.ball.dilate_size)))
+    buffer = draw_mask(buffer, ball_binary_image, (0, 255, 255))
     
     # Edge detector
-    if canny_space == "mono":
-        gray_image = cv.cvtColor(blurred_image, cv.COLOR_BGR2GRAY)
-        binary_image = cv.Canny(gray_image, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-    elif canny_space == "bgr":
-        image_b, image_g, image_r = cv.split(blurred_image)
-        image_b = cv.Canny(image_b, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        image_g = cv.Canny(image_g, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        image_r = cv.Canny(image_r, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        binary_image = cv.bitwise_or(image_b, cv.bitwise_or(image_g, image_r))
-    elif canny_space == "hsv":
-        hsv_image = cv.cvtColor(blurred_image, cv.COLOR_BGR2HSV)
-        image_h, image_s, image_v = cv.split(hsv_image)
-        image_h = cv.Canny(image_h, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        image_s = cv.Canny(image_s, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        image_v = cv.Canny(image_v, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
-        binary_image = np.zeros((hsv_image.shape[0], hsv_image.shape[1]), dtype=np.uint8)
-        #binary_image = cv.bitwise_or(binary_image, image_h)
-        #binary_image = cv.bitwise_or(binary_image, image_s)
-        binary_image = cv.bitwise_or(binary_image, image_v)
-    else: raise Exception("Invalid canny_space")
-
-    buffer = bitwise_or_multichannel(buffer, wall_grass_binary_image) #White
-    buffer = bitwise_nand_multichannel(buffer, binary_image) #Black
-
-    binary_image = cv.bitwise_and(binary_image, wall_grass_binary_image)
+    image_h, image_s, image_v = cv.split(hsv_image)
+    image_h = cv.Canny(image_h, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
+    image_s = cv.Canny(image_s, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
+    image_v = cv.Canny(image_v, c.robot.canny_threshold1, c.robot.canny_threshold2, None, c.robot.canny_aperture)
+    edge_image = np.zeros((hsv_image.shape[0], hsv_image.shape[1]), dtype=np.uint8)
+    #edge_image = cv.bitwise_or(edge_image, image_h)
+    #edge_image = cv.bitwise_or(edge_image, image_s)
+    edge_image = cv.bitwise_or(edge_image, image_v)
+    edge_image = cv.bitwise_and(edge_image, wall_grass_binary_image)
+    buffer = draw_mask(buffer, edge_image, (255, 0, 0))
     
     # Hough
     lines = np.zeros((0, 1, 2))
-    lines1 = cv.HoughLines(binary_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
+    lines1 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
         None, 0, 0, 0, c.robot.vertical_max_angle)
     if not lines1 is None: lines = np.concatenate((lines, lines1), axis=0)
-    lines2 = cv.HoughLines(binary_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
-        None, 0, 0, math.pi - c.robot.vertical_max_angle, math.pi)
+    lines2 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
+        None, 0, 0, np.pi - c.robot.vertical_max_angle, np.pi)
     if not lines2 is None: lines = np.concatenate((lines, lines2), axis=0)
-    lines3 = cv.HoughLines(binary_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
-        None, 0, 0, math.pi / 2 - c.robot.horizontal_max_angle, math.pi / 2 + c.robot.horizontal_max_angle)
+    lines3 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
+        None, 0, 0, np.pi / 2 - c.robot.horizontal_max_angle, np.pi / 2 + c.robot.horizontal_max_angle)
     if not lines3 is None: lines = np.concatenate((lines, lines3), axis=0)
     for line in lines:
         rho = line[0][0]
         theta = line[0][1]
-        a = math.cos(theta)
-        b = math.sin(theta)
+        a = np.cos(theta)
+        b = np.sin(theta)
         x0 = a * rho
         y0 = b * rho
         span = 2000
@@ -188,12 +158,12 @@ def main():
     directory = os.path.dirname(os.path.realpath(__file__))
     config = Config(directory + "/../config/config.yaml")
     files = find_png(directory)
-    tests = [ test2(config, f, "hsv") for f in files ]
+    tests = [ test(config, f) for f in files ]
     image_height = tests[0].shape[0]
     image_width = tests[0].shape[1]
-    collage_height = math.ceil(math.sqrt(len(files)))
-    collage_width = math.ceil(len(files) / collage_height)
-    collage = np.zeros([collage_height * image_height, collage_width * image_width, 3], dtype=np.uint8)
+    collage_height = int(np.ceil(np.sqrt(len(files))))
+    collage_width = int(np.ceil(len(files) / collage_height))
+    collage = np.zeros((collage_height * image_height, collage_width * image_width, 3), dtype=np.uint8)
     for x in range(collage_width):
         for y in range(collage_height):
             i = y * collage_width + x

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, math
+import os
 import numpy as np
 import cv2 as cv
 
@@ -47,6 +47,8 @@ def find_range(mask_files, typ, space, cutoff):
     # Print
     print(f"{typ}_lower = ({min[0]}, {min[1]}, {min[2]})")
     print(f"{typ}_upper = ({max[0]}, {max[1]}, {max[2]})")
+    print(f"{typ}_color_min: [{min[0]},{min[1]},{min[2]}]")
+    print(f"{typ}_color_max: [{max[0]},{max[1]},{max[2]}]")
 
 def find_png(directory):
     return [ directory + "/" + f for f in os.listdir(directory) if os.path.isfile(directory + "/" + f) and f.split('.')[-1] == "png" ]
@@ -56,7 +58,7 @@ def main():
     ball_masks = find_png(directory + "/ball")
     wall_masks = find_png(directory + "/wall")
     grass_masks = find_png(directory + "/grass")
-    find_range(ball_masks, "ball", "hsv", 0.1)
+    find_range(ball_masks, "ball", "hsv", 0.05)
     find_range(wall_masks, "wall", "hsv", 0.01)
     find_range(grass_masks, "grass", "hsv", 0.05)
 
