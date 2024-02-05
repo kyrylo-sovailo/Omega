@@ -3,9 +3,12 @@
 #include <omega/omega.h>
 #include <cv_bridge/cv_bridge.h>
 
+const cv::Scalar omega::Debugger::black = cv::Scalar(0, 0, 0);
+const cv::Scalar omega::Debugger::white = cv::Scalar(255, 255, 255);
 const cv::Scalar omega::Debugger::blue = cv::Scalar(255, 0, 0);
 const cv::Scalar omega::Debugger::green = cv::Scalar(0, 255, 0);
 const cv::Scalar omega::Debugger::red = cv::Scalar(0, 0, 255);
+const cv::Scalar omega::Debugger::yellow = cv::Scalar(0, 255, 255);
 
 omega::Debugger::Debugger(ros::NodeHandle *node, Omega *owner) : _owner(owner)
 {
@@ -23,14 +26,18 @@ void omega::Debugger::draw_background(const cv::Mat &bgr_image)
     _buffer = bgr_image;
 }
 
-void omega::Debugger::draw_mask(const cv::Mat &binary_image)
+void omega::Debugger::draw_mask(const cv::Mat &binary_image, const cv::Scalar &color)
 {
     if (!active) return;
     std::vector<cv::Mat> channels(3);
     cv::split(_buffer, channels);
-    cv::bitwise_or(channels[0], binary_image, channels[0]);
-    cv::bitwise_or(channels[1], binary_image, channels[1]);
-    cv::bitwise_or(channels[2], binary_image, channels[2]);
+    cv::Mat binary_image_inv;
+    if (color[0] == 0 || color[1] == 0 || color[2] == 0) cv::bitwise_not(binary_image, binary_image_inv);
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        if (color[i] == 0) cv::bitwise_and(channels[i], binary_image_inv, channels[i]);
+        else cv::bitwise_or(channels[i], binary_image, channels[i]);
+    }
     cv::merge(channels, _buffer);
 }
 

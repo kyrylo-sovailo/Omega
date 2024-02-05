@@ -10,24 +10,26 @@ namespace omega
     ///Handles arm movements
     class Arm
     {
+    public:
+        struct Pose
+        {
+            Eigen::Vector3d position;
+            double pitch;
+        };
+
     private:
         //Technical
         Omega *_owner;
         ros::Publisher _pub;
 
-        //Initialization
-        bool _initialized = false, _started = false;
-        ros::Time _initialization_time;
-
         //Movement
-        Eigen::Vector4d _pose = Eigen::Vector4d::Zero();
-        Eigen::Vector3d _goal_position = Eigen::Vector3d::Zero();
-        double _goal_pitch = 0;
+        Eigen::Vector4d _pose;
+        Pose _goal_pose;
         bool _move_started = false, _move_finished = false;
         ros::Time _finish_time;
 
         void _read_pose(const sensor_msgs::JointState::ConstPtr &msg);
-        void _write_pose(const Eigen::Vector4d &pose, double duration);
+        void _write_trajectory(const std::vector<Eigen::Vector4d> &poses, const std::vector<double> &durations);
     
     public:
         //Geometry
@@ -36,16 +38,18 @@ namespace omega
         //Limits
         Eigen::Vector4d q_min, q_max, w_max;
         //Behavior
-        double start_delay;
-        Eigen::Vector3d idle_position;
-        double idle_pitch;
+        Pose to_idle_pose, idle_pose, to_pick_pose, to_throw_pose, throw_pose;
 
         Arm(ros::NodeHandle *node, Omega *owner);
         void update(ros::Time now, const sensor_msgs::JointState::ConstPtr &msg);
         void update(ros::Time now);
-
-        bool start_move_idle(ros::Time now);
-        bool start_move(ros::Time now, Eigen::Vector3d point, double pitch);
+        
+        bool start_move(ros::Time now, const std::vector<Pose> &path);
+        bool start_move_unknown_to_idle(ros::Time now);
+        bool start_move_idle_to_pick(ros::Time now, const Pose &pick_pose);
+        bool start_move_pick_to_idle(ros::Time now);
+        bool start_move_idle_to_throw(ros::Time now);
+        bool start_move_throw_to_idle(ros::Time now);
         void abort_move();
         bool get_move_started() const;
         bool get_move_finished() const;

@@ -1,11 +1,10 @@
 ball_tracker:
-  # Image processing
-  min_hue: 6          # [color]
-  max_hue: 50         # [color]
-  min_saturation: 80  # [color]
-  max_saturation: 255 # [color]
-  min_value: 80       # [color]
-  max_value: 255      # [color]
+  ball_color_min: [6,80,80]
+  ball_color_min: [50,255,255]
 
 robot_tracker:
   arena: "arena2018"
+  #wall_color_min: [6,80,80]
+  #wall_color_min: [50,255,255]
+  #grass_color_min: [6,80,80]
+  #grass_color_min: [50,255,255]

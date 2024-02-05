@@ -2,6 +2,8 @@
 config:
   distance_to_ball: 0.2
   distance_to_wall: 0.2
+  arm_start_delay: 1.0
+  gripper_start_delay: 1.0
   start_delay: 5.0
 
 # Timer configuration
@@ -27,14 +29,20 @@ arm:
   q_max: [ .inf, .inf, .inf, .inf ]     # [rad]
   w_max: [ 1, 1, 1, 1 ]                 # [rad/s]
   # Behavior
-  start_delay: 3.0                    # [s]
-  idle_position: [ 0.4, 0.0, 0.1463 ] # [m]
-  idle_pitch: 0.1                     # [rad]
+  to_idle_position: [0.4,0.0,0.1463 ]   # [m]
+  to_idle_pitch: 0.1                    # [rad]
+  idle_position: [0.4,0.0,0.1463 ]      # [m]
+  idle_pitch: 0.1                       # [rad]
+  to_pick_position: [0.4,0.0,0.1463 ]   # [m]
+  to_pick_pitch: 0.1                    # [rad]
+  to_throw_position: [0.4,0.0,0.1463 ]  # [m]
+  to_throw_pitch: 0.1                   # [rad]
+  throw_position: [0.4,0.0,0.1463 ]     # [m]
+  throw_pitch: 0.0                      # [rad]
 
 # Gripper configuration
 gripper:
   duration: 3.0 # [s]
-  start_delay: 3.0
 
 # Wheels configuration
 wheels:
@@ -90,10 +98,11 @@ robot_tracker:
   canny_aperture: 3               # [pixel]
   hough_distance_resolution: 1    # [pixel]
   hough_angle_resolution: 1       # [deg]
-  hough_threshold: 150            # [gray]
+  horizontal_hough_threshold: 150 # [gray]
   horizontal_max_angle: 45        # [deg]
-  vertical_max_angle: 10          # [deg]
   horizontal_max_lines: 45        # [1]
+  vertical_hough_threshold: 150   # [gray]
+  vertical_max_angle: 10          # [deg]
   vertical_max_lines: 10          # [1]
   # Tracking
   match_max_a: 20 # [pixel]

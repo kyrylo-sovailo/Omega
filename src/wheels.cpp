@@ -3,6 +3,18 @@
 #include <omega/omega.h>
 #include <std_msgs/Float64.h>
 
+void omega::Wheels::_read_state(const sensor_msgs::JointState::ConstPtr &msg)
+{
+    double left_speed, right_speed;
+    for (unsigned int i = 0; i < msg->name.size(); i++)
+    {
+        if (msg->name[i] == "wheel_left") left_speed = msg->velocity[i];
+        else if (msg->name[i] == "wheel_right") right_speed = msg->velocity[i];
+    }
+    _linear_speed = (right_speed + left_speed) * wheel_radius;
+    _angular_speed = (right_speed - left_speed) * wheel_radius / wheel_separation;
+}
+
 omega::Wheels::Wheels(ros::NodeHandle *node, Omega *owner) : _owner(owner)
 {
     //Config
@@ -22,26 +34,12 @@ omega::Wheels::Wheels(ros::NodeHandle *node, Omega *owner) : _owner(owner)
     _left_pub = node->advertise<std_msgs::Float64>("joints/wheel_left_controller/command", 1, true);
     _right_pub = node->advertise<std_msgs::Float64>("joints/wheel_right_controller/command", 1, true);
 
-    //State
-    //boost::shared_ptr<const sensor_msgs::JointState> msg = ros::topic::waitForMessage<sensor_msgs::JointState>("joints/joint_states", ros::Duration(5.0));
-    //if (msg == nullptr) { const char *error = "Failed to receive robot state"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
-    //update(ros::Time::now(), msg);
-    //update(ros::Time::now());
-
     ROS_INFO("omega::Wheels initialized");
 }
 
 void omega::Wheels::update(ros::Time now, const sensor_msgs::JointState::ConstPtr &msg)
 {
-    double left_speed, right_speed;
-    for (unsigned int i = 0; i < msg->name.size(); i++)
-    {
-        if (msg->name[i] == "wheel_left") left_speed = (msg->position[i] - _last_left_position) / (now - _last_received).toSec();
-        else if (msg->name[i] == "wheel_right") right_speed = (msg->position[i] - _last_right_position) / (now - _last_received).toSec();
-    }
-    _last_linear_speed = (right_speed + left_speed) * wheel_radius;
-    _last_angular_speed = (right_speed - left_speed) * wheel_radius / wheel_separation;
-    _last_received = now;
+    _read_state(msg);
 }
 
 void omega::Wheels::update(ros::Time now)
@@ -77,6 +75,6 @@ void omega::Wheels::set_speed(double linear, double angular)
 
 void omega::Wheels::get_speed(double *linear, double *angular)
 {
-    *linear = _last_linear_speed;
-    *angular = _last_angular_speed;
+    *linear = _linear_speed;
+    *angular = _angular_speed;
 }

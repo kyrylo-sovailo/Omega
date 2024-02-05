@@ -37,10 +37,11 @@ omega::Camera::Camera(ros::NodeHandle *node, Omega *owner) : _owner(owner)
     ROS_INFO("omega::Camera initialized");
 }
 
-void omega::Camera::update(const sensor_msgs::ImageConstPtr &msg, cv::Mat &image)
+void omega::Camera::update(const sensor_msgs::ImageConstPtr &msg, cv::Mat &hsv_image)
 {
     cv_bridge::CvImagePtr image_pointer = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
     cv::GaussianBlur(image_pointer->image, image_pointer->image, cv::Size(blur_size, blur_size), blur_strength);
-    image = image_pointer->image;
-    _owner->debugger->draw_background(image);
+    _owner->debugger->draw_background(image_pointer->image);
+    cv::cvtColor(image_pointer->image, image_pointer->image, cv::COLOR_BGR2HSV);
+    hsv_image = image_pointer->image;
 }

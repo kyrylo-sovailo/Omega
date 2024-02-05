@@ -16,15 +16,18 @@ namespace omega
         image_transport::Publisher _pub;
     
     public:
+        static const cv::Scalar black;
+        static const cv::Scalar white;
         static const cv::Scalar blue;
         static const cv::Scalar green;
         static const cv::Scalar red;
+        static const cv::Scalar yellow;
 
         bool active;
         
         Debugger(ros::NodeHandle *node, Omega *owner);
         void draw_background(const cv::Mat &bgr_image);
-        void draw_mask(const cv::Mat &binary_image);
+        void draw_mask(const cv::Mat &binary_image, const cv::Scalar &color);
         void draw_rectangle(cv::Rect rect, const cv::Scalar &color);
         void draw_circle(const Eigen::Vector2d &center, double radius, const cv::Scalar &color);
         void draw_line(const Eigen::Vector2d &source, const Eigen::Vector2d &destination, const cv::Scalar &color);

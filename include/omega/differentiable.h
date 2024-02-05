@@ -55,7 +55,7 @@ namespace omega
         constexpr inline Differentiable operator-() const noexcept { Differentiable v; v.value = -this->value; for (unsigned int i = 0; i < N; ++i) v.derivative[i] = -derivative[i]; return v; };
 
         //Cast
-        constexpr inline explicit operator T() noexcept { return value; };
+        constexpr inline explicit operator T() const noexcept { return value; };
     };
 
     //Comparison

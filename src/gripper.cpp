@@ -18,16 +18,17 @@ omega::Gripper::Gripper(ros::NodeHandle *node, Omega *owner) : _owner(owner)
 {
     //Config
     OMEGA_CONFIG("gripper/duration", duration);
-    OMEGA_CONFIG("gripper/start_delay", start_delay);
 
     //Technical
     _sub = node->subscribe("joints/gripper_grasp_controller/state", 1, &Omega::grasp_state_update, owner);
     _pub = node->advertise<turtlebot3_msgs::GraspState>("joints/gripper_grasp_controller/command", 1, true);
 
     //State
-    //boost::shared_ptr<const turtlebot3_msgs::GraspState> msg = ros::topic::waitForMessage<turtlebot3_msgs::GraspState>("joints/gripper_grasp_controller/state", ros::Duration(5.0));
-    //if (msg == nullptr) { const char *error = "Failed to receive gripper state"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
-    //_read_state(msg);
+    ROS_INFO("omega::Gripper waiting for joints/gripper_grasp_controller/state");
+    boost::shared_ptr<const turtlebot3_msgs::GraspState> msg = ros::topic::waitForMessage<turtlebot3_msgs::GraspState>("joints/gripper_grasp_controller/state", ros::Duration(5.0));
+    if (msg == nullptr) { const char *error = "Failed to receive gripper state"; ROS_ERROR("%s", error); throw std::runtime_error(error); }
+    _read_state(msg);
+    ROS_INFO("omega::Gripper received joints/gripper_grasp_controller/state");
 
     ROS_INFO("omega::Gripper initialized");
 }
@@ -40,17 +41,6 @@ void omega::Gripper::update(ros::Time now, const turtlebot3_msgs::GraspState::Co
 
 void omega::Gripper::update(ros::Time now)
 {
-    if (!_initialized)
-    {
-        _initialization_time = now;
-        _initialized = true;
-    }
-    if (_initialized && !_started && _initialization_time + ros::Duration(start_delay) >= now)
-    {
-        start_move(now, false);
-        ROS_INFO("omega::Gripper started");
-        _started = true;
-    }
     if (now >= _finish_time) _move_finished = true;
 }
 

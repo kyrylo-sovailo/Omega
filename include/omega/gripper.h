@@ -15,10 +15,6 @@ namespace omega
         ros::Subscriber _sub;
         ros::Publisher _pub;
 
-        //Initialization
-        bool _initialized = false, _started = false;
-        ros::Time _initialization_time;
-
         //Movement
         bool _opened = false, _grasped = false;
         bool _move_started = false, _move_finished = false;
@@ -29,7 +25,6 @@ namespace omega
     
     public:
         double duration;
-        double start_delay;
 
         Gripper(ros::NodeHandle *node, Omega *omega);
         void update(ros::Time now, const turtlebot3_msgs::GraspState::ConstPtr &msg);

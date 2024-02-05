@@ -3,7 +3,7 @@
 
 namespace omega
 {
-    template <typename T, int X, int Y> void kalman_update(
+    template <typename T, int X> void kalman_update(
         Eigen::Matrix<T, X, 1> &x,
         Eigen::Matrix<T, X, X> &P,
         const Eigen::Matrix<T, X, X> &A,

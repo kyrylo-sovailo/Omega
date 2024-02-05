@@ -3,7 +3,7 @@ project(omega)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs sensor_msgs trajectory_msgs turtlebot3_msgs image_transport cv_bridge)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs sensor_msgs geometry_msgs trajectory_msgs turtlebot3_msgs image_transport cv_bridge)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(OpenCV REQUIRED)
 
@@ -12,7 +12,7 @@ find_package(OpenCV REQUIRED)
 ###################################
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp std_msgs sensor_msgs trajectory_msgs turtlebot3_msgs image_transport cv_bridge
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs geometry_msgs trajectory_msgs turtlebot3_msgs image_transport cv_bridge
   DEPENDS Eigen3 OpenCV
 )
 

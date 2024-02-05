@@ -27,7 +27,8 @@ class RobotTracker:
         self.canny_aperture = config['canny_aperture']
         self.hough_distance_resolution = config['hough_distance_resolution']
         self.hough_angle_resolution = np.pi * config['hough_angle_resolution'] / 180
-        self.hough_threshold = config['hough_threshold']
+        self.horizontal_hough_threshold = config['horizontal_hough_threshold']
+        self.vertical_hough_threshold = config['vertical_hough_threshold']
         self.horizontal_max_angle = np.pi * config['horizontal_max_angle'] / 180
         self.vertical_max_angle = np.pi * config['vertical_max_angle'] / 180
         self.horizontal_max_lines = config['horizontal_max_lines']
@@ -70,13 +71,13 @@ def test_simple(c, filename):
     
     # Hough
     lines = np.zeros((0, 1, 2))
-    lines1 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
+    lines1 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.vertical_hough_threshold,
         None, 0, 0, 0, c.robot.vertical_max_angle)
     if not lines1 is None: lines = np.concatenate((lines, lines1), axis=0)
-    lines2 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
+    lines2 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.vertical_hough_threshold,
         None, 0, 0, np.pi - c.robot.vertical_max_angle, np.pi)
     if not lines2 is None: lines = np.concatenate((lines, lines2), axis=0)
-    lines3 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.hough_threshold,
+    lines3 = cv.HoughLines(edge_image.copy(), c.robot.hough_distance_resolution, c.robot.hough_angle_resolution, c.robot.horizontal_hough_threshold,
         None, 0, 0, np.pi / 2 - c.robot.horizontal_max_angle, np.pi / 2 + c.robot.horizontal_max_angle)
     if not lines3 is None: lines = np.concatenate((lines, lines3), axis=0)
     for line in lines:

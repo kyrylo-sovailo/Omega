@@ -16,6 +16,7 @@ namespace omega
         struct VerticalEdge
         {
             Eigen::Vector2d coordinate;
+            double height;
         };
         std::vector<VerticalEdge> _vertical_edges;
 
@@ -23,6 +24,7 @@ namespace omega
         struct HorizontalWall
         {
             Eigen::Vector2d source, destination;
+            double height;
         };
         std::vector<HorizontalWall> _horizontal_walls;
 
@@ -38,7 +40,7 @@ namespace omega
         //Expected vertical edge
         struct ExpectedVerticalEdge
         {
-            ddouble3 a, b;
+            ddouble3 b;
             VisionLine *match;
         };
 
@@ -54,17 +56,34 @@ namespace omega
         Omega *_owner;
         Eigen::Vector3d _state;
         Eigen::Matrix3d _variance;
+        bool _last_update_valid;
+        ros::Time _last_update;
         
+        static Eigen::Vector4d _extend(const Eigen::Vector3d &point);
+        static Eigen::Matrix<ddouble3, 4, 1> _extend(const Eigen::Matrix<ddouble3, 3, 1> &point);
+
         //Find point coordinates in local space
-        Eigen::Matrix<ddouble3, 3, 1> _get_point_local(const Eigen::Vector3d &point) const;
-        //Find visible line segment
-        bool _get_line_visible(Eigen::Matrix<ddouble3, 3, 1> &source, Eigen::Matrix<ddouble3, 3, 1> &destination) const;
+        Eigen::Matrix<ddouble3, 3, 1> _world_to_local(const Eigen::Vector3d &point) const;
         ///Find point coordinates in camera plane
-        Eigen::Matrix<ddouble3, 2, 1> _project_point(const Eigen::Matrix<ddouble3, 3, 1> &point) const;
+        Eigen::Vector2d _local_to_screen(const Eigen::Vector3d &point) const;
+        ///Find point coordinates in camera plane
+        Eigen::Matrix<ddouble3, 2, 1> _local_to_screen(const Eigen::Matrix<ddouble3, 3, 1> &point) const;
+        ///Find intersection point with screen boundaries
+        bool _is_intersection_on_screen(const Eigen::Vector3d &source, const Eigen::Vector3d &destination, bool horizontal, bool upper, double &t) const;
+        ///Find if a point is displayed
+        bool _is_point_on_screen(const Eigen::Vector2d &point) const;
+        //Find visible line segment
+        bool _is_line_on_screen(const Eigen::Vector3d &source, const Eigen::Vector3d &destination, double &t_source, double &t_destination) const;
+        
         //Find expected parameters of horizontal line
-        void _get_horizontal_line_expectation(const Eigen::Matrix<ddouble3, 3, 1> &source, const Eigen::Matrix<ddouble3, 3, 1> &destination, ddouble3 &a, ddouble3 &b) const;
+        bool _get_expected_horizontal_line(const Eigen::Matrix<ddouble3, 3, 1> &source, const Eigen::Matrix<ddouble3, 3, 1> &destination, ddouble3 &a, ddouble3 &b) const;
         //Find expected parameters of vertical line
-        void _get_vertical_line_expectation(const Eigen::Matrix<ddouble3, 3, 1> &source, const Eigen::Matrix<ddouble3, 3, 1> &destination, ddouble3 &b) const;
+        bool _get_expected_vertical_line(const Eigen::Matrix<ddouble3, 3, 1> &source, const Eigen::Matrix<ddouble3, 3, 1> &destination, ddouble3 &b) const;
+        
+        ///Find expected horizontal walls
+        void _get_expected_horizontal_walls(std::vector<ExpectedHorizontalWall> *walls) const;
+        ///Find expected vertical edges
+        void _get_expected_vertical_edges(std::vector<ExpectedVerticalEdge> *edges) const;
         //Find lines from image
         void _get_lines(const cv::Mat &bgr_image, std::vector<VisionLine> *lines) const;
         //Find lines for vertical edges
@@ -97,11 +116,16 @@ namespace omega
         double wall_angle_stddev;
         double wall_position_stddev;
         //Image processing
+        int wall_color_min[3], wall_color_max[3];
+        int grass_color_min[3], grass_color_max[3];
+        int dilate_size;
         double canny_threshold1, canny_threshold2;
         int canny_aperture;
         double hough_distance_resolution, hough_angle_resolution;
-        int hough_threshold;
+        int horizontal_hough_threshold, vertical_hough_threshold;
         double horizontal_max_angle, vertical_max_angle;
+        int horizontal_max_lines, vertical_max_lines;
+        //Tracking
         double match_max_a, match_max_b;
 
         RobotTracker(ros::NodeHandle *node, Omega *owner);

@@ -31,27 +31,24 @@ Eigen::Vector2d omega::BallTracker::Ball::get_velocity_stddev(bool global) const
     return Eigen::Vector2d(std::sqrt(var(2, 2)), std::sqrt(var(3, 3)));
 }
 
-void omega::BallTracker::_find_countours(const cv::Mat &bgr_image, std::vector<std::vector<cv::Point>> *contours)
+void omega::BallTracker::_find_contours(const cv::Mat &hsv_image, std::vector<std::vector<cv::Point>> *contours)
 {
-    //Convert to HSV
-    cv::Mat hsv_image;
-    cv::cvtColor(bgr_image, hsv_image, cv::COLOR_BGR2HSV);
-
-    //Cutoff
-    cv::Scalar lower(min_hue, min_saturation, min_value);
-    cv::Scalar upper(max_hue, max_saturation, max_value);
-    cv::Mat binary_image = cv::Mat::zeros(hsv_image.size(), CV_8UC1);
-    cv::inRange(hsv_image, lower, upper, binary_image);
+    //Color recognition
+    cv::Scalar ball_lower(ball_color_min[0], ball_color_min[1], ball_color_min[2]);
+    cv::Scalar ball_upper(ball_color_max[0], ball_color_max[1], ball_color_max[2]);
+    cv::Mat ball_binary_image;
+    cv::inRange(hsv_image, ball_lower, ball_upper, ball_binary_image);
 
     //Erode & dilate
-    cv::dilate(binary_image, binary_image, cv::Mat(), cv::Point(-1, -1), dilate_size);
-    cv::erode(binary_image, binary_image, cv::Mat(), cv::Point(-1, -1), dilate_size);
-
-    //Publish
-    _owner->debugger->draw_mask(binary_image);
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(dilate_size, dilate_size));
+    cv::dilate(ball_binary_image, ball_binary_image, element);
+    cv::erode(ball_binary_image, ball_binary_image, element);
 
     //Find contours
-    cv::findContours(binary_image, *contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    cv::findContours(ball_binary_image, *contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+
+    //Draw yellow region
+    _owner->debugger->draw_mask(ball_binary_image, Debugger::yellow);
 }
 
 void omega::BallTracker::_find_circles(const std::vector<std::vector<cv::Point>> &contours, std::vector<BallVision> *balls)
@@ -64,7 +61,7 @@ void omega::BallTracker::_find_circles(const std::vector<std::vector<cv::Point>>
         if (0.8 * image_box.height > image_box.width) continue;
         const double image_radius_estimate = std::sqrt(image_box.width/2 * image_box.height/2);
         if (image_radius_estimate < min_radius) continue;
-        _owner->debugger->draw_rectangle(image_box, Debugger::red);
+        _owner->debugger->draw_rectangle(image_box, Debugger::red); //Draw found boxes
 
         //Calculate area and center
         BallVision ball;
@@ -95,9 +92,9 @@ void omega::BallTracker::_find_circles(const std::vector<std::vector<cv::Point>>
         }
         ball.image_radius /= contour->size();
         if (ball.image_radius < min_radius) continue;
-        _owner->debugger->draw_circle(ball.image_center, ball.image_radius, Debugger::red);
+        _owner->debugger->draw_circle(ball.image_center, ball.image_radius, Debugger::red); //Draw found circles
 
-        //Calculare variance
+        //Calculate radius variance
         ball.image_radius_variance = 0;
         for (auto point = contour->cbegin(); point != contour->cend(); point++)
         {
@@ -123,7 +120,7 @@ void omega::BallTracker::_find_positions(std::vector<BallVision> *balls)
         const double w = p1p2r / ball->image_radius;
         const double w_var = ball->image_radius_variance * sqr(p1p2r / sqr(ball->image_radius));
 
-        //Calculate local coordunates and their variance
+        //Calculate local coordinates and their variance
         const Eigen::Vector4d uvw(ball->image_center.x() * w, ball->image_center.y() * w, w, 1);
         const Eigen::Matrix4d uvw_var = Eigen::Vector4d(ball->image_radius_variance * w, ball->image_radius_variance * w, w_var, 1).asDiagonal();
         const Eigen::Matrix4d T = (Eigen::Translation3d(_owner->camera->base_position) *
@@ -135,7 +132,7 @@ void omega::BallTracker::_find_positions(std::vector<BallVision> *balls)
         ball->local_position = local.segment<2>(0);
         ball->local_position_variance = local.block<2, 2>(0, 0);
 
-        //Calculate ball coordinates and their variance
+        //Calculate global coordinates and their variance
         const Eigen::Vector2d robot_position = _owner->robot_tracker->get_position();
         const double robot_orientation = _owner->robot_tracker->get_orientation();
         const Eigen::Matrix3d robot_variance = _owner->robot_tracker->get_variance();
@@ -159,7 +156,7 @@ void omega::BallTracker::_match(ros::Time now, std::vector<BallVision> *balls)
 {
     //TODO: distance based algorithm, needs to be probability based
 
-    //For every seen ball
+    //For every visible ball
     std::vector<bool> database_ball_matches(false, _balls.size());
     for (auto ball = balls->begin(); ball != balls->end(); ball++)
     {
@@ -178,13 +175,13 @@ void omega::BallTracker::_match(ros::Time now, std::vector<BallVision> *balls)
         
         if (!std::isinf(min_distance))
         {
-            //If found
+            //Link balls if found
             database_ball_matches[min_distance_ball] = true;
             ball->match = &_balls[min_distance_ball];
         }
         else
         {
-            //If not found
+            //Create and link balls if not found
             Ball new_ball;
             new_ball.local_state.setZero();
             new_ball.local_state.segment<2>(0) = ball->local_position;
@@ -199,21 +196,24 @@ void omega::BallTracker::_match(ros::Time now, std::vector<BallVision> *balls)
             database_ball_matches.push_back(true);
             ball->match = &_balls.back();
         }
+
+        //Set last seen
         ball->match->last_seen = now;
     }
 }
 
 void omega::BallTracker::_correct(ros::Time now, const std::vector<BallVision> &balls)
 {
-    Eigen::Matrix<double, 2, 4> C;
-    C.setZero();
-    C(0, 0) = 1;
-    C(1, 1) = 1;
+    Eigen::Matrix<double, 2, 4> C = Eigen::Matrix<double, 2, 4>::Zero();
+    C.block<2, 2>(0, 0) = Eigen::Matrix<double, 2, 2>::Identity();
 
+    //For every visible ball
     for (auto ball = balls.begin(); ball != balls.end(); ball++)
     {
+        //Skip not mached or newly matched
         if (ball->match == nullptr || ball->match->last_seen == now) continue;
         
+        //Run Kalman
         kalman_correct<double, 4, 2>(ball->match->local_state, ball->match->local_var, ball->local_position, C, ball->local_position_variance);
         kalman_correct<double, 4, 2>(ball->match->global_state, ball->match->global_var, ball->global_position, C, ball->global_position_variance);
     }
@@ -228,43 +228,37 @@ omega::BallTracker::BallTracker(ros::NodeHandle *node, Omega *owner) : _owner(ow
 
     OMEGA_CONFIG("ball_tracker/min_radius", min_radius);
     OMEGA_CONFIG("ball_tracker/min_area", min_area);
-    OMEGA_CONFIG("ball_tracker/timeout", timeout);
-
-    OMEGA_CONFIG("ball_tracker/min_hue", min_hue);
-    OMEGA_CONFIG("ball_tracker/max_hue", max_hue);
-    OMEGA_CONFIG("ball_tracker/min_saturation", min_saturation);
-    OMEGA_CONFIG("ball_tracker/max_saturation", max_saturation);
-    OMEGA_CONFIG("ball_tracker/min_value", min_value);
-    OMEGA_CONFIG("ball_tracker/max_value", max_value);
+    OMEGA_CONFIG_COLOR("ball_tracker/ball_color_min", ball_color_min);
+    OMEGA_CONFIG_COLOR("ball_tracker/ball_color_max", ball_color_max);
     OMEGA_CONFIG("ball_tracker/dilate_size", dilate_size);
+
+    OMEGA_CONFIG("ball_tracker/timeout", timeout);
+    OMEGA_CONFIG("ball_tracker/match_max_distance", match_max_distance);
 
     ROS_INFO("omega::BallTracker initialized");
 }
 
-void omega::BallTracker::update(ros::Time now, const cv::Mat &bgr_image)
+void omega::BallTracker::update(ros::Time now, const cv::Mat &hsv_image)
 {
     std::vector<std::vector<cv::Point>> contours;
-    _find_countours(bgr_image, &contours);
+    _find_contours(hsv_image, &contours);
 
     std::vector<BallVision> balls;
     _find_circles(contours, &balls);
 
-    //_find_positions(&balls);
-    //_match(now, &balls);
-    //_update(now, balls);
+    _find_positions(&balls);
+    _match(now, &balls);
+    _correct(now, balls);
 }
 
-void omega::BallTracker::update(ros::Time now, double linear, double angular)
+void omega::BallTracker::update(ros::Time now, double linear_speed, double angular_speed)
 {
     //Initialize last_update
     if (!_last_update_valid) { _last_update = now; _last_update_valid = true; return; }
 
-    //Delete long unseen balls
-    for (int i = _balls.size() - 1; i >= 0; i--)
-    {
-        if (now - _balls[i].last_seen < ros::Duration(timeout)) _balls.erase(_balls.begin() + i);
-    }
+    update(now);
 
+    //TODO: add deviation pro distance
     const double dt = (now - _last_update).toSec();
     Eigen::Matrix4d Q = Eigen::Matrix4d::Zero();
     Q.block<2, 2>(0, 0) = dt * sqr(position_stddev_time) * Eigen::Matrix2d::Identity();
@@ -277,24 +271,30 @@ void omega::BallTracker::update(ros::Time now, double linear, double angular)
     Eigen::Vector4d Bu_global = Eigen::Vector4d::Zero();
 
     Eigen::Matrix4d A_local = Eigen::Matrix4d::Zero();
-    A_local.block<2, 2>(0, 0) = Eigen::Rotation2Dd(-angular).toRotationMatrix();
-    A_local.block<2, 2>(0, 2) = dt * Eigen::Rotation2Dd(-angular / 2).toRotationMatrix();
-    A_local.block<2, 2>(2, 2) = Eigen::Rotation2Dd(-angular).toRotationMatrix();
+    A_local.block<2, 2>(0, 0) = Eigen::Rotation2Dd(-angular_speed * dt).toRotationMatrix();
+    A_local.block<2, 2>(0, 2) = dt * Eigen::Rotation2Dd(-angular_speed * dt / 2).toRotationMatrix();
+    A_local.block<2, 2>(2, 2) = Eigen::Rotation2Dd(-angular_speed * dt).toRotationMatrix();
     Eigen::Vector4d Bu_local = Eigen::Vector4d::Zero();
-    Bu_local.segment<2>(0) = Eigen::Rotation2Dd(-angular / 2).toRotationMatrix() * Eigen::Vector2d(-linear, 0);
+    Bu_local.segment<2>(0) = Eigen::Rotation2Dd(-angular_speed * dt / 2).toRotationMatrix() * Eigen::Vector2d(-linear_speed * dt, 0);
 
+    //Run Kalman
     for (auto ball = _balls.begin(); ball != _balls.end(); ball++)
     {
-        kalman_update<double, 4, 2>(ball->local_state, ball->local_var, A_local, Bu_local, Q);
-        kalman_update<double, 4, 2>(ball->global_state, ball->global_var, A_global, Bu_global, Q);
+        kalman_update<double, 4>(ball->local_state, ball->local_var, A_local, Bu_local, Q);
+        kalman_update<double, 4>(ball->global_state, ball->global_var, A_global, Bu_global, Q);
     }
 
+    //Remember update time
     _last_update = now;
 }
 
 void omega::BallTracker::update(ros::Time now)
 {
-    update(now, 0.0, 0.0);
+    //Delete long unseen balls
+    for (int i = _balls.size() - 1; i >= 0; i--)
+    {
+        if (now - _balls[i].last_seen < ros::Duration(timeout)) _balls.erase(_balls.begin() + i);
+    }
 }
 
 const std::vector<omega::BallTracker::Ball> &omega::BallTracker::get_balls() const

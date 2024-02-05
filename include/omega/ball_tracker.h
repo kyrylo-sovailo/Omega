@@ -48,7 +48,7 @@ namespace omega
         bool _last_update_valid = false;
         ros::Time _last_update;
 
-        void _find_countours(const cv::Mat &bgr_image, std::vector<std::vector<cv::Point>> *contours);
+        void _find_contours(const cv::Mat &hsv_image, std::vector<std::vector<cv::Point>> *contours);
         void _find_circles(const std::vector<std::vector<cv::Point>> &contours, std::vector<BallVision> *balls);
         void _find_positions(std::vector<BallVision> *balls);
         void _match(ros::Time now, std::vector<BallVision> *balls);
@@ -61,14 +61,15 @@ namespace omega
         double position_stddev_time, speed_stddev_time;
         //Image processing
         double min_radius, min_area;
+        int ball_color_min[3], ball_color_max[3];
+        int dilate_size;
+        //Tacking
         double timeout;
         double match_max_distance;
-        int min_hue, max_hue, min_saturation, max_saturation, min_value, max_value;
-        int dilate_size;
 
         BallTracker(ros::NodeHandle *node, Omega *owner);
-        void update(ros::Time now, const cv::Mat &bgr_image);
-        void update(ros::Time now, double linear, double angular);
+        void update(ros::Time now, const cv::Mat &hsv_image);
+        void update(ros::Time now, double linear_speed, double angular_speed);
         void update(ros::Time now);
         const std::vector<Ball> &get_balls() const;
     };
