@@ -505,7 +505,7 @@ void omega::RobotTracker::update(ros::Time now, const cv::Mat &hsv_image)
     _construct_expectation_derivative(walls, edges, derivative);
     _construct_measurement(walls, edges, measurement);
     _construct_measurement_variance(walls, edges, variance);
-    //kalman_correct<double, 3, Eigen::Dynamic>(); //TODO: implement
+    kalman_correct<double, 3, Eigen::Dynamic>(_state, _variance, measurement - expectation, derivative, variance);
 }
 
 void omega::RobotTracker::update(ros::Time now, double linear_speed, double angular_speed)
@@ -515,14 +515,17 @@ void omega::RobotTracker::update(ros::Time now, double linear_speed, double angu
 
     //TODO: add deviation pro distance
     const double dt = (now - _last_update).toSec();
-    Eigen::Matrix4d Q = Eigen::Matrix4d::Zero();
+    Eigen::Matrix3d Q = Eigen::Matrix3d::Zero();
     Q.block<2, 2>(0, 0) = dt * sqr(position_stddev_time) * Eigen::Matrix2d::Identity();
-    Q.block<2, 2>(2, 2) = dt * sqr(angle_stddev_time) * Eigen::Matrix2d::Identity();
+    Q(2, 2) = dt * sqr(angle_stddev_time);
     Eigen::Matrix3d A = Eigen::Matrix3d::Identity();
-    Eigen::Vector3d Bu(linear_speed * std::cos(_state(2)), linear_speed * std::sin(_state(2)), angular_speed); //TODO: trapezoidal integration
+    Eigen::Vector3d Bu(
+        dt * linear_speed * std::cos(_state(2) + 0.5 * dt * angular_speed),
+        dt * linear_speed * std::sin(_state(2) + 0.5 * dt * angular_speed),
+        dt * angular_speed);
 
     //Run Kalman
-    //kalman_update<double, 3>(_state, _variance, A, Bu, Q); //TODO: implement
+    kalman_update<double, 3>(_state, _variance, A, Bu, Q);
 
     //Remember update time
     _last_update = now;
